@@ -128,6 +128,9 @@ const SURFACES = [
   // P2.3 composer parity: seeded markdown draft (restored on load), voice
   // memo bar idle, markdown preview open, drag overlay active.
   { name: '06-composer', composer: true },
+  // P2.4 find-in-chat: seeded transcript turns, bar open via mod+F, query
+  // typed, one next() so the active-match outline is visible.
+  { name: '07-find', find: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -270,6 +273,13 @@ app.whenReady().then(async () => {
     const { sessionExtrasService } = require(path.join(ROOT, 'src', 'main', 'services', 'sessionExtrasService.js'));
     sessionExtrasService.saveDraft(SESSION_ID,
       'Ship the **launch** today — notes:\n\n- retry the failed job\n- ping the team');
+
+    // P2.4 surface seed: transcript turns containing the fixed query so the
+    // find bar has real matches to navigate.
+    const { sessionService } = require(path.join(ROOT, 'src', 'main', 'services', 'sessionService.js'));
+    sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'please ship the release notes tonight' });
+    sessionService.appendTurn(SESSION_ID, { role: 'assistant', content: 'staged — the release notes are ready for review' });
+    sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'ok, release it' });
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
@@ -379,6 +389,24 @@ app.whenReady().then(async () => {
             }
             await sleep(200);
             return 'composer staged';
+          })()`);
+          await sleep(300);
+        }
+        if (surface.find) {
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', metaKey: true, bubbles: true, cancelable: true }));
+            await sleep(250);
+            const input = document.querySelector('[data-surface="find-input"]');
+            if (input) {
+              const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+              setter.call(input, 'release');
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            await sleep(400);
+            const next = document.querySelector('[data-surface="find-next"]');
+            if (next) { next.click(); await sleep(300); }
+            return 'find staged';
           })()`);
           await sleep(300);
         }

@@ -2459,3 +2459,11 @@ details.automations-manager .automation-list, details.automations-manager .autom
   padding: 0 3px;
 }
 .composer-revision .composer-reply-author { color: var(--accent-ink); }
+
+/* ---- Find-in-chat active match (P2.4) ---- */
+.msg-row.is-active-match {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--r-md);
+}
+.msg-row.is-active-match .msg-author { color: var(--accent-ink); }

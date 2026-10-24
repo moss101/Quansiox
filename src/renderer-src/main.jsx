@@ -13,6 +13,7 @@ import TaskDetail from './TaskDetail.jsx';
 import ScreenViewer from './ScreenViewer.jsx';
 import PermissionPanel from './PermissionPanel.jsx';
 import TaskStatusStrip from './TaskStatus.jsx';
+import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
 import McpPanel from './surfaces/McpPanel.jsx';
@@ -1074,16 +1075,19 @@ function App() {
     } catch {}
   }, []);
 
-  // Find-in-session matches.
-  const findMatches = find?.q
-    ? agent.items.filter((it) => ['user', 'assistant'].includes(it.kind) && it.text?.toLowerCase().includes(find.q.toLowerCase()))
-    : [];
+  // Find-in-session matches (P2.4): ordered by the model, navigated with
+  // wraparound in both directions; the active match is a specific message
+  // that gets a distinct highlight plus the scroll/flash treatment.
+  const findMatches = useMemo(() => matchItems(agent.items, find?.q ?? ''), [agent.items, find?.q]);
+  const findActive = find ? activeItem(findMatches, find.idx) : null;
+  const goToFindMatch = useCallback((idx) => {
+    setFind((f) => ({ ...(f ?? { q: '', idx: 0 }), idx }));
+    const hit = activeItem(findMatches, idx);
+    if (hit?.id) jumpToMessage(hit.id);
+  }, [findMatches, jumpToMessage]);
   const cycleFind = (dir = 1) => {
     if (!findMatches.length) return;
-    const idx = ((find.idx ?? 0) + dir + findMatches.length) % findMatches.length;
-    setFind((f) => ({ ...f, idx }));
-    const el = document.querySelectorAll('.msg-row.highlight')[idx];
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    goToFindMatch(stepIndex(find?.idx ?? 0, findMatches.length, dir));
   };
 
   const activeTitle = sessions.find((s) => s.id === agent.sessionId)?.title ?? 'New session';
@@ -1449,18 +1453,21 @@ function App() {
           </div>
         )}
         {find && (
-          <div className="find-bar">
+          <div className="find-bar" data-surface="find-bar" role="search" aria-label="Find in session">
             <Icon.Search />
-            <input autoFocus value={find.q}
-              onChange={(e) => setFind({ q: e.target.value, idx: 0 })}
+            <input autoFocus value={find.q} data-surface="find-input"
+              onChange={(e) => { setFind({ q: e.target.value, idx: 0 }); }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') cycleFind(e.shiftKey ? -1 : 1);
+                if (e.key === 'Enter') { e.preventDefault(); cycleFind(e.shiftKey ? -1 : 1); }
+                if (e.key === 'Escape') { e.preventDefault(); setFind(null); }
               }}
-              placeholder="find in session…" />
-            <span className="find-count">{find.q ? `${findMatches.length ? (find.idx ?? 0) + 1 : 0}/${findMatches.length}` : ''}</span>
-            <button className="ibtn" title="Previous" onClick={() => cycleFind(-1)}><Icon.ChevronDown /></button>
-            <button className="ibtn" title="Next" onClick={() => cycleFind(1)}><Icon.ChevronDown /></button>
-            <button className="ibtn" title="Close" onClick={() => setFind(null)}><Icon.X /></button>
+              placeholder="find in session…" aria-label="Find in session" />
+            <span className="find-count" data-surface="find-count">{find.q ? countLabel(findMatches, find.idx) : ''}</span>
+            <button className="ibtn" data-surface="find-prev" title="Previous match (⇧↵)" aria-label="Previous match"
+              onClick={() => cycleFind(-1)}><Icon.ChevronLeft /></button>
+            <button className="ibtn" data-surface="find-next" title="Next match (↵)" aria-label="Next match"
+              onClick={() => cycleFind(1)}><Icon.ChevronRight /></button>
+            <button className="ibtn" title="Close (Esc)" aria-label="Close find" onClick={() => setFind(null)}><Icon.X /></button>
           </div>
         )}
         <div className="messages">
@@ -1499,7 +1506,7 @@ function App() {
             {agent.items.map((item) => {
               switch (item.kind) {
                 case 'user': return (
-                  <UserMessage key={item.key} text={item.text} at={item.at} search={find?.q}
+                  <UserMessage key={item.key} text={item.text} at={item.at} search={find?.q} activeMatch={findActive?.id ?? null}
                     queued={item.queued === true} id={item.id} replyTo={item.replyTo} reactions={item.reactions}
                     onReply={() => startReply(item)} onReact={(emoji) => agent.react(item.id, emoji)}
                     onEdit={() => startEdit(item)}
@@ -1515,7 +1522,7 @@ function App() {
                     }} />
                 );
                 case 'assistant': return (
-                  <AssistantMessage key={item.key} text={item.text} at={item.at} search={find?.q}
+                  <AssistantMessage key={item.key} text={item.text} at={item.at} search={find?.q} activeMatch={findActive?.id ?? null}
                     author={item.author} sessionId={agent.sessionId} memoKey={item.key}
                     id={item.id} reactions={item.reactions}
                     onReply={() => startReply(item)} onReact={(emoji) => agent.react(item.id, emoji)}

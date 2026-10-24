@@ -71,14 +71,15 @@ function ReactBtn({ my = [], onReact }) {
 }
 
 export function MessageRow({
-  kind, text, at, onRetry, search = '', trailing, speak, author,
+  kind, text, at, onRetry, search = '', trailing, speak, author, activeMatch = null,
   id, replyTo, reactions = [], onReply, onReact, onJumpTo, onSteer, onRollback, threadCount = 0, onOpenThread, onEdit,
 }) {
   const highlighted = Boolean(search) && text.toLowerCase().includes(search.toLowerCase());
+  const isActiveMatch = highlighted && id != null && id === activeMatch;
   const canReact = Boolean(id && onReact);
   const displayAuthor = author || AUTHOR[kind] || kind;
   return (
-    <div className={`msg-row ${kind}${highlighted ? ' highlight' : ''}`} data-message-id={id || undefined}>
+    <div className={`msg-row ${kind}${highlighted ? ' highlight' : ''}${isActiveMatch ? ' is-active-match' : ''}`} data-message-id={id || undefined}>
       <div className="msg-avatar">{(author ? String(author)[0] : AVATAR[kind]) ?? '?'}</div>
       <div className="msg-body">
         <div className="msg-head">
@@ -142,8 +143,8 @@ export function MessageRow({
   );
 }
 
-export const UserMessage = ({ text, at, onRetry, search, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread, onEdit }) => (
-  <MessageRow kind="user" text={text} at={at} onRetry={onRetry} search={search}
+export const UserMessage = ({ text, at, onRetry, search, activeMatch, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread, onEdit }) => (
+  <MessageRow kind="user" text={text} at={at} onRetry={onRetry} search={search} activeMatch={activeMatch}
     id={id} replyTo={replyTo} reactions={reactions} onReply={onReply} onReact={onReact} onJumpTo={onJumpTo}
     onRollback={onRollback} threadCount={threadCount} onOpenThread={onOpenThread} onEdit={onEdit}
     trailing={queued
@@ -159,8 +160,8 @@ export const UserMessage = ({ text, at, onRetry, search, queued, id, replyTo, re
       )
       : null} />
 );
-export const AssistantMessage = ({ text, at, search, sessionId, memoKey, id, reactions, author, onReply, onReact, onJumpTo, threadCount, onOpenThread }) => (
-  <MessageRow kind="assistant" text={text} at={at} search={search} author={author}
+export const AssistantMessage = ({ text, at, search, activeMatch, sessionId, memoKey, id, reactions, author, onReply, onReact, onJumpTo, threadCount, onOpenThread }) => (
+  <MessageRow kind="assistant" text={text} at={at} search={search} author={author} activeMatch={activeMatch}
     id={id} reactions={reactions} onReply={onReply} onReact={onReact} onJumpTo={onJumpTo}
     threadCount={threadCount} onOpenThread={onOpenThread}
     speak={sessionId ? { sessionId, memoKey: memoKey ?? `msg:${at}:${text.slice(0, 24)}` } : undefined} />
