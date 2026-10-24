@@ -14,6 +14,7 @@ import ScreenViewer from './ScreenViewer.jsx';
 import PermissionPanel from './PermissionPanel.jsx';
 import TaskStatusStrip from './TaskStatus.jsx';
 import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
+import ShortcutsDialog from './ShortcutsDialog.jsx';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
 import McpPanel from './surfaces/McpPanel.jsx';
@@ -734,6 +735,7 @@ function App() {
   const [memoOpen, setMemoOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [revisingOf, setRevisingOf] = useState(null);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const clearRevision = useCallback(() => setRevisingOf(null), []);
   const discardDraft = useCallback(() => {
     api.sessionExtras.discardDraft({ sessionId: agent.sessionId }).catch(() => {});
@@ -1119,6 +1121,7 @@ function App() {
       case 'focus-composer': composerEditor.current?.commands?.focus?.(); break;
       case 'find-now': setFind({ q: extra?.q ?? '', idx: 0 }); break;
       case 'find': setFind((f) => (f ?? { q: '', idx: 0 })); break;
+      case 'shortcuts': setShortcutsOpen(true); break;
       case 'export': api.sessions.export({ id: agent.sessionId })
         .then((p) => toast(p ? `exported → ${p}` : 'export canceled', p ? 'ok' : 'warn'))
         .catch((err) => toast(err.message ?? String(err), 'err'));
@@ -1133,6 +1136,7 @@ function App() {
   const paletteActions = useMemo(() => [
     { id: 'new-session', title: 'New Bot', hint: '⌘N' },
     { id: 'settings', title: 'Open settings', hint: '⌘,' },
+    { id: 'shortcuts', title: 'Keyboard shortcuts', hint: '⌘/' },
     { id: 'connect-apps', title: 'Connect apps (Integrations)', hint: '⌘⇧M' },
     { id: 'toggle-theme', title: 'Toggle light / dark theme' },
     { id: 'toggle-sidebar', title: 'Toggle sidebar', hint: '⌘B' },
@@ -1279,6 +1283,14 @@ function App() {
         return;
       }
       if (mod && key === '.') { ev.preventDefault(); setDock((d) => ({ ...d, open: !d.open })); return; }
+      // sand.* registry additions (P1.7): the Grok-parity bindings that
+      // were missing. Identifiers/accelerators per shortcutRegistry.js.
+      if (mod && !ev.altKey && !ev.shiftKey && (key === 'n' || key === 'N')) { ev.preventDefault(); newSession(); return; }
+      if (mod && ev.shiftKey && (key === 'N' || key === 'n')) { ev.preventDefault(); toast('group chats: create a room from a chat’s ⋯ menu (quick-create pending)', 'warn'); return; }
+      if (mod && !ev.altKey && !ev.shiftKey && (key === 'b' || key === 'B')) { ev.preventDefault(); toggleRail(); return; }
+      if (mod && !ev.altKey && !ev.shiftKey && key === ',') { ev.preventDefault(); window.quansioxUI?.openSettings?.(); return; }
+      if (mod && !ev.altKey && !ev.shiftKey && (key === 'i' || key === 'I')) { ev.preventDefault(); composerEditor.current?.commands?.focus?.(); return; }
+      if (mod && !ev.altKey && (key === '/' || key === '?')) { ev.preventDefault(); setShortcutsOpen((v) => !v); return; }
       if (mod && !ev.shiftKey && key === 'f') { ev.preventDefault(); setFind((f) => (f ?? { q: '', idx: 0 })); return; }
       if (mod && !ev.shiftKey && !ev.altKey && (key === 'd' || key === 'D')) { ev.preventDefault(); toggleDictation(); return; }
       if (mod && !ev.shiftKey && !ev.altKey && (key === 'l' || key === 'L')) {
@@ -1303,7 +1315,7 @@ function App() {
         stepSession(ev.shiftKey ? -1 : 1);
         return;
       }
-      if (key === 'Escape') { setFind(null); setPalette(null); setSessionMenu(null); setRename(null); setProfile(null); setTemplateDraft(null); setThreadOpen(null); setEditAuto(null); setDetails(false); setResetConfirm(false); setReplyTo(null); }
+      if (key === 'Escape') { setFind(null); setPalette(null); setSessionMenu(null); setRename(null); setProfile(null); setTemplateDraft(null); setThreadOpen(null); setEditAuto(null); setDetails(false); setResetConfirm(false); setReplyTo(null); setShortcutsOpen(false); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1560,6 +1572,7 @@ function App() {
         <NoticeStack />
         <InteractionCards />
         <TaskStatusStrip sessionId={agent.sessionId} />
+        <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         <Composer
           onSend={onSend}
           running={agent.running || groupBusy}

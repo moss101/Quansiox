@@ -131,6 +131,8 @@ const SURFACES = [
   // P2.4 find-in-chat: seeded transcript turns, bar open via mod+F, query
   // typed, one next() so the active-match outline is visible.
   { name: '07-find', find: true },
+  // P1.7 shortcuts dialog: opened via a real mod+/ dispatch.
+  { name: '08-shortcuts', shortcuts: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -409,6 +411,16 @@ app.whenReady().then(async () => {
             return 'find staged';
           })()`);
           await sleep(300);
+        }
+        if (surface.shortcuts) {
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', metaKey: true, bubbles: true, cancelable: true }));
+            await sleep(400);
+            const dialog = document.querySelector('[data-surface="shortcuts-dialog"]');
+            return dialog ? 'open' : 'missing';
+          })()`);
+          await sleep(200);
         }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);

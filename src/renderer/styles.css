@@ -2467,3 +2467,54 @@ details.automations-manager .automation-list, details.automations-manager .autom
   border-radius: var(--r-md);
 }
 .msg-row.is-active-match .msg-author { color: var(--accent-ink); }
+
+/* ---- Shortcuts dialog (P1.7) ---- */
+.shortcuts-overlay { display: grid; place-items: center; }
+.shortcuts-card {
+  width: min(560px, 92vw);
+  max-height: min(600px, 86vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-1);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+}
+.shortcuts-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.shortcuts-body { overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.shortcuts-group-title {
+  margin: 0 0 var(--space-1);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+.shortcuts-group ul { list-style: none; margin: 0; padding: 0; }
+.shortcut-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-2);
+  padding: 3px 0;
+  font-size: 12.5px;
+  color: var(--text-1);
+}
+.shortcut-row.is-unmapped .shortcut-label { color: var(--text-3); }
+.shortcut-row.is-approx .shortcut-label { color: var(--text-2); }
+.shortcut-note { color: var(--text-3); font-style: normal; }
+.shortcut-key {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: var(--text-2);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-xs);
+  background: var(--bg-2);
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.shortcut-key.is-unmapped {
+  border-style: dashed;
+  color: var(--text-3);
+  font-family: inherit;
+}
