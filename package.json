@@ -21,7 +21,8 @@
     "verify-package": "node scripts/verify-package.js",
     "verify-wiring": "node test/packaged-wiring.js",
     "verify-runtime": "env -u ELECTRON_RUN_AS_NODE QUANSIOX_PACKAGED_APP=release/Quansiox.app ./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron test/packaged-runtime-main.js",
-    "verify-visuals": "env -u ELECTRON_RUN_AS_NODE QUANSIOX_PACKAGED_APP=release/Quansiox.app ./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron test/screenshot-surfaces.js"
+    "verify-visuals": "env -u ELECTRON_RUN_AS_NODE QUANSIOX_PACKAGED_APP=release/Quansiox.app ./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron test/screenshot-surfaces.js",
+    "verify-visual-diff": "env -u ELECTRON_RUN_AS_NODE ./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron test/visual-diff.js"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
