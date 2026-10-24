@@ -27,7 +27,7 @@ grok-renderer-inventory.md, quansiox-inventory.md).
 |---|---|---|---|
 | Window IPC | `coordinatorPort` MessagePort + `cak`-style domain manifest (`window.desktop.<domain>.<method>`); raw channels `sand:coordinator-port[-request]`, `entry:*` | Namespaced registry over 6 raw channels (`quansiox-ipc-*`); 84 namespaces/~546 handlers | Architectural equivalent — re-route not needed |
 | Agent brain | remote AiService/GrokBotService (proto.cjs) + local node-agent-coordinator (1.06MB cjs) + voice-call-harness + local-exec-daemon (3.8MB cjs) | forked coordinator child (JSON messages), 6 provider protocols, 138 tools | Equivalent shape; protocol-compat gap at proto layer ( nei-stubs) |
-| Tool surface | **152-ish ActionName enum** (PascalCase; `Computer Read Screenshot Shell Skill Vault` base set + device/IOS/Mac/Mobile/Slack/Teams/Meetings/MCP/emails) | 138 snake_case tools; ~24 name-equal | Tool contract needs formal mapping (unmapped 132 in `tools-unmapped.txt`) |
+| Tool surface | **152-ish ActionName enum** (PascalCase; `Computer Read Screenshot Shell Skill Vault` base set + device/IOS/Mac/Mobile/Slack/Teams/Meetings/MCP/emails) | 146 snake_case tools; translation layer `src/coordinator/grokActionMap.js` covers **156/156** ActionNames: **71 local** (24 name-equal + 47 semantic) + **85 honest stubs** (family-reasoned, fail-honest) — gated by `test/parity-toolmap.js` | Contract closed 2026-10-24; remaining work is per-family graduation, not mapping |
 | Sandbox | cloud "box" + colocated VM (foreverBox, `machine-shell` device tools) | bare-node computer + Alpine VM (VZ, virtiofs, vsock, RFB+CDP+agent, CoW snapshots) | Quansiox ahead in local-first; Grok ahead in device fleet/cloud |
 | Design layer | 1,824 custom props + 9,259 class names (3,510 `sand-*`, hashed StyleX + `ui-*` utilities), fonts XVF/XMono/cursor-icons/SF~Pro | grok-tokens.css from **0.71.2** (1,368 props), 53→225 semantic recipes, **no fonts** | **FAR from 100%**; drift quantified below |
 | i18n | Lingui, 36 locales (emoji-only translations) | none | Missing entirely |
@@ -91,7 +91,16 @@ grok-renderer-inventory.md, quansiox-inventory.md).
 
 ## 6. Verdict
 
-Quansiox ≈ architecture clone with honest fail-closed stubs, but: **design layer 71% token coverage (measured),
-0 font files, 0/9.2k class-name parity, 24/156 tool-name parity, 137/141 host-API coverage** — far from "100% no
-deviation". The path to parity is a verbatim re-baseline (0.75.0), a serialized-CSS component port, and a
-tool-contract translation layer + local-first implementations for the unmapped 132.
+Updated 2026-10-24 (numbers from regenerable artifacts, not session notes):
+
+- **Token vocabulary: COMPLETE on the required tier** — grok 1,510 / quansiox 1,429 defined, required-missing **0**
+  (`test/fixtures/vocabulary-baseline.json` via `test/design-drift.js`); tracked-missing 190 (app-level knobs),
+  extra 109 remain as the burn-down ledger.
+- **Fonts: vendored locally** (sha256-verified XVF/XMono/cursor-icons; binaries gitignored per docs/asset-policy.md).
+- **Tool contract: 156/156 translated** — 71 execute locally, 85 fail honestly with family reasons
+  (`test/parity-toolmap.js`).
+- **Host-API: 141/141 catalogued** (grok-compat 556 methods, local=412 stub=144).
+- Still far from "100% no deviation": component recipes are measured but only partially ported
+  (P0.3 batches 1-4 done; outline/table/dataviz/Kbd/tag remain), class-name parity is intentionally
+  not pursued (output parity per docs/asset-policy.md), frontend surfaces (P2) and cloud families (P3)
+  are largely unbuilt. The gate for every future claim is `npm run verify-visual-diff` + the parity tests.

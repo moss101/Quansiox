@@ -1667,6 +1667,26 @@
   --sand-agent-item-avatar-gap: 10px;
   --sand-agent-item-title-gap: 1px;
   --sand-transcript-prose-block-padding: 7px;
+
+  /* ---- supplemented: names Grok defines outside the theme blocks ----
+     Verbatim values; bare references to runtime-injected names carry an
+     appended fallback (Grok's documented one where it exists: sidebar 280px,
+     titlebar 38px; otherwise inert). See SUPPLEMENT in this script. */
+  --cursor-box-shadow-workbench: 0 0 8px 2px color-mix(in srgb, var(--vscode-widget-shadow, transparent) 40%, transparent);
+  --cursor-button-background: var(--vscode-button-background, initial);
+  --cursor-button-foreground: var(--vscode-button-foreground, initial);
+  --cursor-button-hover-background: var(--vscode-button-hoverBackground, initial);
+  --cursor-font-family-mono: var(--monaco-monospace-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  --cursor-font-family-sans: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --cursor-scrollbar-horizontal-size: var(--vscode-scrollbar-horizontal-size, 12px);
+  --cursor-scrollbar-vertical-size: var(--vscode-scrollbar-vertical-size, 14px);
+  --sand-activity-mark-ink: var(--x---sand-activity-mark-ink, currentColor);
+  --sand-pin-row-cap: var(--x---sand-pin-row-cap, initial);
+  --sand-shimmer-dim: var(--sand-text-tertiary);
+  --sand-sidebar-width: var(--x---sand-sidebar-width, 280px);
+  --sand-status-dot-ring: var(--sand-bg-elevated);
+  --sand-titlebar-collapsed-block: var(--sand-titlebar-block,38px);
+  --sand-toolbar-height: var(--sand-titlebar-block,38px);
 }
 
 html[data-theme='dark'] {

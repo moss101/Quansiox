@@ -283,6 +283,34 @@ function formatProps(pairs) {
 }
 
 /** CLI/programmatic options: `--out PATH`, `quiet`. */
+/** Names Grok defines OUTSIDE the serialized theme blocks (hashed selectors,
+ * Monaco/StyleX interop). The base-palette pass drops them as dangling
+ * references — Grok's own CSS leaves them pointing at runtime-injected names
+ * (--vscode-, --x- prefixed). This layer still must define Grok's full
+ * sand/cursor vocabulary, so they are emitted with the value verbatim
+ * and, where the value is a bare reference, an appended fallback: Grok's own
+ * documented usage fallback where one exists (--sand-sidebar-width to 280px,
+ * titlebar to 38px), otherwise an inert fallback (initial, currentColor,
+ * transparent) so nothing dangles. Sources: shipped index CSS declarations
+ * plus usage fallbacks in grok75-atoms.json (0.75.0 extraction, 2026-10-24). */
+const SUPPLEMENT = [
+  ['--cursor-box-shadow-workbench', '0 0 8px 2px color-mix(in srgb, var(--vscode-widget-shadow, transparent) 40%, transparent)'],
+  ['--cursor-button-background', 'var(--vscode-button-background, initial)'],
+  ['--cursor-button-foreground', 'var(--vscode-button-foreground, initial)'],
+  ['--cursor-button-hover-background', 'var(--vscode-button-hoverBackground, initial)'],
+  ['--cursor-font-family-mono', 'var(--monaco-monospace-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace)'],
+  ['--cursor-font-family-sans', 'var(--vscode-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)'],
+  ['--cursor-scrollbar-horizontal-size', 'var(--vscode-scrollbar-horizontal-size, 12px)'],
+  ['--cursor-scrollbar-vertical-size', 'var(--vscode-scrollbar-vertical-size, 14px)'],
+  ['--sand-activity-mark-ink', 'var(--x---sand-activity-mark-ink, currentColor)'],
+  ['--sand-pin-row-cap', 'var(--x---sand-pin-row-cap, initial)'],
+  ['--sand-shimmer-dim', 'var(--sand-text-tertiary)'],
+  ['--sand-sidebar-width', 'var(--x---sand-sidebar-width, 280px)'],
+  ['--sand-status-dot-ring', 'var(--sand-bg-elevated)'],
+  ['--sand-titlebar-collapsed-block', 'var(--sand-titlebar-block,38px)'],
+  ['--sand-toolbar-height', 'var(--sand-titlebar-block,38px)'],
+];
+
 function main(opts) {
   const options = opts ?? {};
   const cssPath = findGrokCss();
@@ -368,7 +396,7 @@ function main(opts) {
 
   // Every alias must point at a token that exists in the theme — or at
   // another alias in this layer (chaining, e.g. --ease -> --cursor-easing-*).
-  const known = new Set([...base.map(([n]) => n), ...light.map(([n]) => n), ...dark.map(([n]) => n), ...ALIASES.map(([a]) => a)]);
+  const known = new Set([...base.map(([n]) => n), ...light.map(([n]) => n), ...dark.map(([n]) => n), ...ALIASES.map(([a]) => a), ...SUPPLEMENT.map(([n]) => n)]);
   const broken = ALIASES.filter(([, target]) => target.startsWith('--') && !known.has(target));
   if (broken.length) {
     console.error('These aliases point at tokens Grok does not have:');
@@ -416,6 +444,12 @@ ${formatProps(light)}
 
   /* ---- Quansiox's semantic aliases, resolved to Grok's tokens ---- */
 ${formatProps(aliasPairs)}
+
+  /* ---- supplemented: names Grok defines outside the theme blocks ----
+     Verbatim values; bare references to runtime-injected names carry an
+     appended fallback (Grok's documented one where it exists: sidebar 280px,
+     titlebar 38px; otherwise inert). See SUPPLEMENT in this script. */
+${formatProps(SUPPLEMENT)}
 }
 
 html[data-theme='dark'] {

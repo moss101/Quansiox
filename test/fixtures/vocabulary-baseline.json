@@ -3,28 +3,12 @@
   "grokSource": "index-CEV-0tKx.css",
   "counts": {
     "grokDefined": 1510,
-    "quansioxDefined": 1414,
-    "requiredMissing": 15,
+    "quansioxDefined": 1429,
+    "requiredMissing": 0,
     "trackedMissing": 190,
     "extra": 109
   },
-  "requiredMissing": [
-    "--cursor-box-shadow-workbench",
-    "--cursor-button-background",
-    "--cursor-button-foreground",
-    "--cursor-button-hover-background",
-    "--cursor-font-family-mono",
-    "--cursor-font-family-sans",
-    "--cursor-scrollbar-horizontal-size",
-    "--cursor-scrollbar-vertical-size",
-    "--sand-activity-mark-ink",
-    "--sand-pin-row-cap",
-    "--sand-shimmer-dim",
-    "--sand-sidebar-width",
-    "--sand-status-dot-ring",
-    "--sand-titlebar-collapsed-block",
-    "--sand-toolbar-height"
-  ],
+  "requiredMissing": [],
   "trackedMissing": [
     "--agent-transcript-human-todo-tray-surface",
     "--bg-elevated",
