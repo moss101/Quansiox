@@ -212,6 +212,9 @@ registerNamespace('confirmations', {
     // to this exact tool AND target, so "always allow git push" never becomes
     // "always allow shell".
     respond: (_e, { id, approved, scope } = {}) => confirmationService.respond(id, approved, scope),
+    // Pending approvals, redacted — the thread status strip polls this so a
+    // restart can no longer orphan a mid-run approval (P2.4).
+    list: () => confirmationService.list(),
   },
   events: [],
 });

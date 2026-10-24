@@ -2299,3 +2299,92 @@ details.automations-manager .automation-list, details.automations-manager .autom
 }
 .stage-collapse:hover { color: var(--text-1); border-color: var(--stroke-2, var(--stroke-1)); }
 .stage-column.is-collapsed .stage-collapse { left: 4px; }
+
+/* ---- Task status strip + async tasks drawer (P2.4) ---- */
+.task-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  padding: 0 var(--space-2) var(--space-1);
+  position: relative;
+}
+.task-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  line-height: 18px;
+  border: 1px solid var(--stroke-1);
+  background: var(--bg-2);
+  color: var(--text-2);
+}
+.task-chip .task-chip-progress { color: var(--accent-ink); font-variant-numeric: tabular-nums; }
+.task-chip.is-waiting { color: var(--warn); border-color: var(--stroke-1); }
+.task-chip.is-approval { color: var(--danger); }
+.task-chip.is-running { color: var(--text-2); }
+.task-chip.is-failed { color: var(--danger); }
+.task-strip-toggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+}
+.task-strip-toggle:hover { color: var(--text-1); }
+.async-drawer {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--space-1));
+  width: min(420px, 92vw);
+  max-height: 320px;
+  overflow: auto;
+  background: var(--bg-1);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-2);
+  z-index: 30;
+}
+.async-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-1);
+}
+.async-drawer-close {
+  background: none; border: none; color: var(--text-3); cursor: pointer;
+  font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: var(--r-xs);
+}
+.async-drawer-close:hover { color: var(--text-1); }
+.async-drawer-empty, .async-task-empty { color: var(--text-3); font-size: 12px; margin: 0; }
+.async-task-row { border-top: 1px solid var(--stroke-1); padding: var(--space-1) 0; }
+.async-task-row:first-of-type { border-top: none; }
+.async-task-head {
+  display: flex; align-items: center; gap: var(--space-1);
+  width: 100%; background: none; border: none; cursor: pointer;
+  color: var(--text-1); font-size: 12px; padding: 2px 0; text-align: left;
+}
+.async-task-status {
+  width: 8px; height: 8px; border-radius: var(--r-full);
+  background: var(--text-3); flex: none;
+}
+.async-task-status[data-status="running"] { background: var(--accent); }
+.async-task-status[data-status="succeeded"] { background: var(--success); }
+.async-task-status[data-status="failed"] { background: var(--danger); }
+.async-task-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.async-task-progress, .async-task-state { color: var(--text-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+.async-task-bar { height: 3px; border-radius: var(--r-full); background: var(--stroke-1); margin: 2px 0 2px 16px; overflow: hidden; }
+.async-task-bar-fill { height: 100%; background: var(--accent); border-radius: var(--r-full); }
+.async-task-body { margin: var(--space-1) 0 0 16px; }
+.async-task-error { color: var(--danger); font-size: 12px; margin: 0 0 4px; }
+.async-task-tail {
+  margin: 0; max-height: 140px; overflow: auto;
+  font-family: var(--font-mono, monospace); font-size: 11px; line-height: 1.5;
+  color: var(--text-2); white-space: pre-wrap;
+}

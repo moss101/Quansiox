@@ -12,6 +12,7 @@ import { Icon } from './Icons.jsx';
 import TaskDetail from './TaskDetail.jsx';
 import ScreenViewer from './ScreenViewer.jsx';
 import PermissionPanel from './PermissionPanel.jsx';
+import TaskStatusStrip from './TaskStatus.jsx';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
 import McpPanel from './surfaces/McpPanel.jsx';
@@ -1525,6 +1526,7 @@ function App() {
         </div>
         <NoticeStack />
         <InteractionCards />
+        <TaskStatusStrip sessionId={agent.sessionId} />
         <Composer
           onSend={onSend}
           running={agent.running || groupBusy}

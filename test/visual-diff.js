@@ -122,7 +122,15 @@ const SURFACES = [
   { name: '02-shell-dark' },
   { name: '03-settings-projects', pane: 'projects' },
   { name: '04-settings-design', pane: 'design' },
+  // P2.4 thread status: seeded running/finished async tasks + a pending
+  // approval + a pending form, drawer opened via its toggle.
+  { name: '05-tasks', click: '.task-strip-toggle' },
 ];
+
+/** The renderer boots a random session unless #session= is pinned — a fixed
+ * id is what lets the seeded async tasks land in the strip the renderer
+ * polls (its list is scoped to agent.sessionId). */
+const SESSION_ID = 'visual-taskcards';
 
 const STABILIZE_CSS = `
   *, *::before, *::after {
@@ -234,6 +242,25 @@ app.whenReady().then(async () => {
     });
     projectService.addFiles(project.id, [{ name: 'q1-notes.md', content: '# Q1\nRevenue up 12%.' }]);
     projectService.setPinned(project.id, true);
+
+    // P2.4 surface seed: one running + one finished async task, a pending
+    // tool approval, and a pending input form — the exact states the strip
+    // summarizes. Fixed strings only; timestamps are frozen by FAKE_NOW.
+    const { asyncTaskService } = require(path.join(ROOT, 'src', 'main', 'services', 'asyncTaskService.js'));
+    const running = asyncTaskService.create({ sessionId: SESSION_ID, title: 'Run command — npm test' });
+    asyncTaskService.update(running.id, { status: 'running', progress: 0.4, outputTail: '> npm test\n\nok design-drift\nok design-system\n' });
+    const finished = asyncTaskService.create({ sessionId: SESSION_ID, title: 'Compress exports' });
+    asyncTaskService.update(finished.id, { status: 'succeeded' });
+    const { confirmationService } = require(path.join(ROOT, 'src', 'main', 'services', 'confirmationService.js'));
+    confirmationService.request(
+      SESSION_ID, 'shell', { command: 'npm test' }, null, 600_000,
+      { tool: 'shell', target: 'npm test', description: 'Run the project test suite', argsPreview: { command: 'npm test' } },
+    );
+    const { userInteractionService } = require(path.join(ROOT, 'src', 'main', 'services', 'userInteractionService.js'));
+    userInteractionService.requestForm({
+      agentId: 'visual', sessionId: SESSION_ID, title: 'Confirm the release name',
+      fields: [{ name: 'release', label: 'Release name', type: 'text' }],
+    });
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
@@ -317,6 +344,14 @@ app.whenReady().then(async () => {
         }
         await win.webContents.executeJavaScript(`(${scrubVolatileText.toString()})()`);
         await sleep(60);
+        if (surface.click) {
+          await win.webContents.executeJavaScript(`(() => {
+            const el = document.querySelector('${surface.click}');
+            if (el) el.click();
+            return el ? 'clicked' : 'missing';
+          })()`);
+          await sleep(400);
+        }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);
         let entry = { captured: true };
@@ -376,7 +411,7 @@ app.whenReady().then(async () => {
     }
   });
 
-  win.loadFile(path.join(ROOT, 'src', 'renderer', 'index.html'));
+  win.loadFile(path.join(ROOT, 'src', 'renderer', 'index.html'), { hash: `session=${SESSION_ID}` });
 }).catch((error) => {
   console.log('VISUAL DIFF BOOT FAILED: ' + (error?.stack ?? error));
   app.exit(1);
