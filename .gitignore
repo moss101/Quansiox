@@ -1,0 +1,19 @@
+# Dependencies and build output
+node_modules/
+build/
+release/
+
+# Runtime state (sandboxes, single-instance locks, macOS cruft)
+.quansiox/
+Singleton*
+.DS_Store
+*.log
+
+# VM images / rootfs — rebuild with scripts/build-desktop-rootfs.js
+vm/
+
+# Reverse-engineering working artifacts (extracted proprietary app + case data)
+work/
+
+# Vendored proprietary font binaries — see src/renderer/fonts/README.md
+src/renderer/fonts/*.woff2

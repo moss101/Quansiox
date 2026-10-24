@@ -1,0 +1,43 @@
+/* ============================================================
+   Grok Bot 0.75.0 — the SHIPPED typefaces, byte-identical copies
+   (sha256 verified at extraction time) of the app's ~Sans fonts.
+
+   X-face declarations are copied verbatim from
+   work/grok-re/asar-extracted/dist/renderer/assets/index-CEV-0tKx.css:
+     @font-face{font-family:XVF;font-weight:200 800;font-display:fallback;
+       src:url(./X-VF-C7NyO54W.woff2)format("woff2")}
+     @font-face{font-family:XVF Mono;font-weight:200 800;font-display:fallback;
+       src:url(./XMono-VF-K4lk0ar0.woff2)format("woff2")}
+     @font-face{font-family:cursor-icons;font-display:block;
+       src:url(./cursor-icons-16-QUmxS7q3.woff2)format("woff2")}
+
+   Grok's runtime typography table (index.eager-app-wqHXQRAi.js) puts the
+   faces FIRST in the stacks:
+     sans: `'XVF', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
+     mono: `'XVF Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+            Consolas, 'Liberation Mono', 'Courier New', monospace`
+   Quansiox's --font-sans/--font-mono mirror exactly those stacks.
+
+   KaTeX's math faces (19 woff2, loaded by Grok's markdown-math chunk) are
+   vendored when the math surface itself is re-derived.
+   ============================================================ */
+
+@font-face {
+  font-family: XVF;
+  font-weight: 200 800;
+  font-display: fallback;
+  src: url(./fonts/X-VF.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: XVF Mono;
+  font-weight: 200 800;
+  font-display: fallback;
+  src: url(./fonts/XMono-VF.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: cursor-icons;
+  font-display: block;
+  src: url(./fonts/cursor-icons-16.woff2) format("woff2");
+}

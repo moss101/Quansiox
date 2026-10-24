@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob: data:; frame-src 'self' blob: data:; object-src 'self' blob:; connect-src 'self' ws://127.0.0.1:*" />
+  <title>Quansiox</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Transparent overlay titlebar: drag region + window actions only.
+       Traffic lights sit over the sidebar; content starts at y=0. -->
+  <div id="titlebar">
+    <div class="drag-region"></div>
+    <div id="titlebar-title">Quansiox</div>
+    <div class="titlebar-actions">
+      <button id="btn-theme" title="Toggle light/dark">☾</button>
+      <button id="btn-settings" title="Settings">⚙</button>
+    </div>
+  </div>
+  <div id="root"></div>
+  <dialog id="settings-dialog">
+    <!-- legacy settings dialog is mounted by settings.js -->
+  </dialog>
+  <script src="settings-bridge.js"></script>
+  <script src="commands-bridge.js"></script>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

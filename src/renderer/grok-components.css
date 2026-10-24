@@ -1,0 +1,2366 @@
+/* ============================================================
+   Grok Bot 0.71.2 — the SHIPPED component layer.
+
+   Ported from Grok Bot's shipped bundle:
+     /Users/mohsin/manux/work/re-2026-10-20/grok-bot/app/dist/renderer/assets/
+       index-DkV65EBE.css   (701 KB, 1,361 custom properties,
+                             5,527 hashed StyleX component classes)
+
+   HOW THE RECIPES WERE FOUND
+   --------------------------
+   Grok's StyleX classes are content-hashed (`.ui-1n2onr6`, `.sand-9f619`),
+   so the class names carry no meaning. Each recipe was recovered by:
+
+     1. reading the StyleX style objects that survive in Grok's JS bundles
+        (`{root:{kB7OPa:"ui-9f619", kEafiO:"ui-178xt8z", ...}}` — the
+        hashed key is the CSS property, the value is the class), then
+     2. resolving every one of those classes back to its rule in the
+        shipped CSS.
+
+   That is how the values below are Grok's own, not an approximation.
+
+   THE COLOURS
+   -----------
+   Every colour here is a token. Quansiox's semantic aliases (--bg,
+   --stroke-*, --text-*, --accent, …) are re-pointed at Grok's real
+   tokens in `grok-tokens.css`, so they are used wherever the role
+   matches. Where a recipe needs a role Quansiox has no alias for
+   (the control track, the primary fill, the focus ring) Grok's own
+   `--sand-*` / `--cursor-*` tokens are used directly. There is not one
+   literal colour in this file.
+
+   THE CASCADE
+   -----------
+   This file is imported by `styles.css` immediately after
+   `grok-tokens.css`, so it lands BEFORE Quansiox's own rules: where
+   both declare the same property, Quansiox's wins. This file therefore
+   contributes the declarations Quansiox does not already own (the
+   focus rings, the heights, the new primitives), and every primitive
+   Quansiox has no class for is defined here in full.
+
+   For the handful of primitives where Quansiox already has a class AND
+   Grok's recipe contradicts it (the button variants, the icon button,
+   the toast, the tabs), the ported rule is written against the
+   compound selector the markup actually uses — `.btn.btn-primary`,
+   `button.ibtn`, `div.toast`. That is one level of specificity above
+   Quansiox's flat rule, so the ported value is the one that renders,
+   and `styles.css` is not edited. Everywhere else the same selector
+   Quansiox uses is used, and the two files do not fight.
+
+   PRIMITIVES THAT ARE NOT IN GROK'S CSS
+   -------------------------------------
+   The following primitives do not exist in Grok Bot 0.71.2's shipped
+   stylesheet — they are listed here rather than invented:
+
+     * alert              — Grok has callouts and banners, no alert
+     * accordion          — Grok has `collapsible`, no accordion
+     * context-menu       — Grok's menu carries submenus inline; there
+                            is no separate context-menu recipe
+     * split-button       — not present
+     * toggle-group       — not present
+     * radio-group        — not present
+     * sr-only            — not present (Grok uses `aria-hidden`)
+
+   Three more have no class of their own in Grok but DO have a recipe
+   under another name, and are ported from it:
+
+     * dropdown  → Grok's select list (the sand select rows)
+     * sheet     → Grok's modal surface + scrim, anchored to the bottom
+     * skeleton  → Grok's `skeletonBar` (the session-card shimmer)
+   ============================================================ */
+
+
+/* ============================================================
+   focus ring
+   Grok's global focus rule (shipped CSS, the `:where(...)` block):
+
+     :where(a[href],button,input,select,textarea,summary,[role=button],
+     [role=link],[role=tab],[role=menuitem],[role=menuitemcheckbox],
+     [role=menuitemradio],[role=option],[role=checkbox],[role=radio],
+     [role=switch],[tabindex="0"],[contenteditable]:not([contenteditable=false]))
+     :where(:focus-visible) { outline:2px solid var(--sand-border-focus-primary);
+                              outline-offset:1px }
+
+   Grok's own components then override it with the component ring:
+     outline-width:2px; outline-style:solid; outline-offset:2px;
+     outline-color:var(--sand-border-focus-primary)
+   and the "ring" variant:
+     box-shadow:0 0 0 2px var(--sand-border-focus-primary)
+
+   --sand-shadow-ring is the ring's own shadow layer.
+   ============================================================ */
+
+:where(a[href], button, input, select, textarea, summary,
+       [role='button'], [role='link'], [role='tab'], [role='menuitem'],
+       [role='menuitemcheckbox'], [role='menuitemradio'], [role='option'],
+       [role='checkbox'], [role='radio'], [role='switch'],
+       [tabindex='0'], [contenteditable]:not([contenteditable='false']))
+  :where(:focus-visible) {
+  outline: 2px solid var(--sand-border-focus-primary);
+  outline-offset: 1px;
+}
+
+/* The component ring: Grok resets the outline and rebuilds it on
+   :focus-visible, with a 2px offset (the "ring" recipe). */
+.btn,
+.ibtn,
+.circle-btn,
+.chip,
+.badge,
+.card,
+.tab,
+.dock-tab,
+.rail-tab,
+.settings-tab,
+.browser-tab,
+.menu-item,
+.list-row,
+.cmd-item,
+.outline-item,
+.toast,
+.notice,
+.input,
+textarea,
+select,
+.field,
+.switch,
+.checkbox,
+.radio,
+.segmented-item,
+.pill,
+.tag {
+  outline-width: 0;
+  outline-style: none;
+  outline-offset: 0;
+  outline-color: transparent;
+}
+
+.btn:focus-visible,
+.ibtn:focus-visible,
+.circle-btn:focus-visible,
+.chip:focus-visible,
+.badge:focus-visible,
+.card:focus-visible,
+.tab:focus-visible,
+.dock-tab:focus-visible,
+.rail-tab:focus-visible,
+.settings-tab:focus-visible,
+.browser-tab:focus-visible,
+.menu-item:focus-visible,
+.list-row:focus-visible,
+.cmd-item:focus-visible,
+.outline-item:focus-visible,
+.toast:focus-visible,
+.notice:focus-visible,
+.input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.field:focus-visible,
+.switch:focus-visible,
+.checkbox:focus-visible,
+.radio:focus-visible,
+.segmented-item:focus-visible,
+.pill:focus-visible,
+.tag:focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-offset: 2px;
+  outline-color: var(--sand-border-focus-primary);
+}
+
+/* Grok's "ring" focus variant: a 2px accent ring with the ring's own
+   shadow layer (--sand-shadow-ring). */
+.focus-ring:focus-visible,
+[data-focus-ring='ring']:focus-visible {
+  box-shadow: 0 0 0 2px var(--sand-border-focus-primary),
+    0 0 0 4px var(--sand-shadow-ring);
+}
+
+
+/* ============================================================
+   button
+   Grok: the "sand" Button (shipped CSS, the style object whose
+   `root` carries --sand-border-*-translucent and whose variants
+   are named primary / primaryRed / secondary / outline / ghost /
+   text).
+
+   Sizes (Grok's own):
+     xs  height 22px  padding-inline 8px   radius 11px  font 12/16
+     sm  height 26px  padding-inline 10px  radius 13px  font 12/16
+     md  height 30px  padding-inline 13px  radius 15px  font 13/18
+     lg  height 34px  padding-inline 15px  radius 17px  font 13/18
+     xl  height 38px  padding-inline 18px  radius 19px  font 15/21
+   ============================================================ */
+
+.btn {
+  gap: var(--cursor-spacing-1-5);
+  min-height: 30px;
+  font-weight: var(--sand-font-weight-regular, 400);
+  text-align: center;
+  text-decoration-line: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Grok's md button is a 30px pill with a 15px radius; Quansiox keeps
+   its own radius token, so only the size is taken from Grok. The
+   variants are written against the compound selector the markup uses
+   (`class="btn btn-primary"`), so the ported values render on top of
+   Quansiox's flat `.btn-primary` rule without editing that file.
+   Values below resolve Grok 0.75.0's Button recipe table verbatim
+   (minified JS slot map → atoms DB):
+
+     primary     bg sand-8rotk8 (bg-primary)  hover sand-1sxibbd
+                 (bg-primary-hover)  text sand-sa7k8x (text-inverted)
+     red/primary bg sand-ptgcna (bg-danger-primary, == bg-red-primary)
+                 hover sand-yhpp14 (mix bg 88% black)
+                 text sand-xcaa6e (text-on-primary)
+     secondary   bg sand-fwqdrz + hover sand-19jy9ex  text sand-tyxrsu
+     outline     bg sand-jbqb8w (#0000)  hover sand-b937un
+                 (mix bg-secondary 76%, transparent)
+                 borders/each-side sand-13nz628/bp68ws/1vu50b0/5x6ma4
+                 (secondary-translucent)  text sand-tyxrsu
+     ghost       bg sand-jbqb8w  hover sand-d5puqa
+                 (mix bg-secondary 86%, transparent)
+                 text sand-1o0liin (text-secondary) + focus-within
+                 sand-1fx2joi (text-primary)
+     text        bg/border sides sand-1v8p93f/1o3jo1z/16stqrj/v5lvn5 (#0000)
+                 text sand-1o0liin + focus-within primary */
+.btn.btn-primary {
+  background: var(--sand-bg-primary);
+  color: var(--sand-text-inverted);
+}
+.btn.btn-primary:hover:not(:disabled) {
+  background: var(--sand-bg-primary-hover);
+}
+.btn.btn-secondary {
+  background: var(--sand-bg-secondary);
+  border-color: transparent;
+  color: var(--sand-text-primary);
+}
+.btn.btn-secondary:hover:not(:disabled) {
+  background: var(--sand-bg-secondary-hover);
+}
+.btn.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sand-text-secondary);
+}
+.btn.btn-ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sand-bg-secondary) 86%, transparent);
+  color: var(--sand-text-primary);
+}
+.btn.btn-ghost:focus-within,
+.btn.btn-ghost:focus-visible {
+  color: var(--sand-text-primary);
+}
+.btn.btn-danger {
+  background: var(--sand-bg-danger-primary);
+  border-color: transparent;
+  color: var(--sand-text-on-primary);
+}
+.btn.btn-danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sand-bg-danger-primary) 88%, black);
+}
+/* Grok's outline variant: a hairline border, transparent ground. */
+.btn.btn-outline {
+  background: transparent;
+  border-color: var(--sand-border-secondary-translucent);
+  color: var(--sand-text-primary);
+}
+.btn.btn-outline:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sand-bg-secondary) 76%, transparent);
+}
+/* Grok's text variant: no ground, no border, secondary ink that darkens
+   on focus. */
+.btn.btn-text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sand-text-secondary);
+}
+.btn.btn-text:hover:not(:disabled) {
+  color: var(--sand-text-primary);
+}
+.btn-mini {
+  min-height: 26px;
+  font-size: var(--cursor-font-size-xs);
+  line-height: var(--cursor-line-height-sm);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   icon-button
+   Grok: the "sand" IconButton.
+
+   Sizes: xs 20px, sm 24px, md 28px, lg 44px.
+   shapeSquare radius 6px, shapeCircle radius 9999px.
+   transition: background-color,color .12s ease-out.
+   ============================================================ */
+
+.ibtn,
+button.ibtn {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--sand-text-primary) 66%, transparent);
+  transition-property: background-color, color;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+}
+button.ibtn:hover {
+  background: var(--sand-bg-secondary);
+  color: color-mix(in srgb, var(--sand-text-primary) 92%, transparent);
+}
+button.ibtn:disabled {
+  color: color-mix(in srgb, var(--sand-text-primary) 32%, transparent);
+  cursor: default;
+}
+button.ibtn.active {
+  background: var(--sand-bg-secondary-hover);
+  color: var(--sand-text-primary);
+}
+
+.circle-btn,
+button.circle-btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-elevated);
+  color: color-mix(in srgb, var(--sand-text-primary) 66%, transparent);
+  transition-property: background-color, color;
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+}
+button.circle-btn:hover {
+  background: var(--sand-bg-secondary);
+  color: color-mix(in srgb, var(--sand-text-primary) 92%, transparent);
+}
+
+
+/* ============================================================
+   input / textarea / select / field / label
+   Grok: the "sand" Field (the boxed control) plus the ui-layer
+   InputGroup (the container that owns the border and the padding).
+
+   Field: min-height 32px, radius 8px, 1px border, elevated ground,
+   border --sand-border-secondary-translucent, focus-within
+   --sand-border-primary-translucent, transition border-color .12s ease.
+   Control: radius 8px, padding 5px 10px, placeholder --sand-text-tertiary.
+   ============================================================ */
+
+.field {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 32px;
+  box-sizing: border-box;
+  border: 0;
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-tertiary-translucent);
+  border-radius: var(--r-md);
+  background: var(--sand-bg-elevated);
+  transition: box-shadow 120ms ease;
+}
+.field:focus-within {
+  outline: var(--cursor-focus-ring-width) solid var(--cursor-focus-ring-color);
+  outline-offset: -1px;
+}
+.field.invalid {
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-danger-primary);
+}
+.field.disabled {
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-quaternary-translucent);
+  background: transparent;
+}
+.field > label,
+.label {
+  flex: none;
+  align-self: center;
+  margin-inline-end: 4px;
+  padding-inline: 4px;
+  color: var(--sand-text-secondary);
+  font-size: var(--text-xs);
+}
+.field.disabled > label {
+  color: var(--sand-text-quaternary);
+}
+
+.input,
+textarea,
+select {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: var(--r-md);
+  color: var(--sand-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  outline: none;
+}
+/* The standalone "sand" control (Grok's searchField chrome): 32px tall,
+   radius 8px, elevated ground, NO border — a .5px tertiary inset ring;
+   focus = the outline focus ring pulled 1px inside the box. */
+.input,
+select {
+  min-height: 32px;
+  padding: 0 var(--cursor-spacing-1) 0 var(--cursor-spacing-2);
+  border: 0;
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-tertiary-translucent);
+  background: var(--sand-bg-elevated);
+}
+.input:focus,
+select:focus {
+  outline: var(--cursor-focus-ring-width) solid var(--cursor-focus-ring-color);
+  outline-offset: -1px;
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-tertiary-translucent);
+}
+.input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--sand-text-tertiary);
+}
+.input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+.input:disabled::placeholder,
+textarea:disabled::placeholder,
+select:disabled::placeholder {
+  color: var(--sand-text-quaternary);
+}
+.input.mono,
+textarea.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* The ui-layer InputGroup container: a .5px inset hairline around the
+   control with the group's padding inside it (Grok's ring idiom). */
+.input-group {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  border: 0;
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-tertiary-translucent);
+  border-radius: var(--r-sm);
+  background: var(--sand-bg-elevated);
+  transition-property: color, background-color, box-shadow;
+  transition-duration: var(--cursor-duration-normal);
+  transition-timing-function: var(--cursor-easing-default);
+}
+.input-group:focus-within {
+  outline: var(--cursor-focus-ring-width) solid var(--cursor-focus-ring-color);
+  outline-offset: -1px;
+}
+/* Inside a group the control owns no chrome — the group does. */
+.input-group .input,
+.input-group select {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Grok's textarea layout: the editor sits above its own footer. */
+.textarea {
+  display: block;
+  min-height: 64px;
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border: 0;
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-tertiary-translucent);
+  border-radius: var(--r-md);
+  background: var(--sand-bg-elevated);
+  color: var(--sand-text-primary);
+  resize: vertical;
+}
+.textarea:focus {
+  outline: var(--cursor-focus-ring-width) solid var(--cursor-focus-ring-color);
+  outline-offset: -1px;
+}
+.textarea-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cursor-spacing-0-5);
+  margin-inline: var(--cursor-spacing-1);
+}
+
+/* Grok's select: the trigger is the control; the chevron is an 11px
+   transparent border on the inline end. */
+.select {
+  display: block;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--sand-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 17px;
+}
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 11px;
+  width: 0;
+  height: 0;
+  border-inline: 5px solid transparent;
+  border-top: 6px solid var(--sand-text-tertiary);
+  pointer-events: none;
+}
+.select-wrap .select {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   checkbox / radio
+   Grok: the ui-layer Checkbox (compiled state strings, 0.75.0):
+
+     box     16x16 (same atoms as the md knob), radius 4px
+     off     1px solid border-primary-translucent, bg-elevated
+     on      bg-accent-primary (+hover accent-hover), border .5px
+             quaternary-translucent, check icon --sand-text-on-primary
+   radio:   radius 9999px, same press + transition ramp (size kept at
+            the checkbox box per the shared rule).
+   ============================================================ */
+
+.checkbox,
+.radio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--sand-border-primary-translucent);
+  background: var(--sand-bg-elevated);
+  color: var(--sand-text-secondary);
+  cursor: pointer;
+  transform: scale(1);
+  transform-origin: center;
+  transition-property: background-color, border-color, transform;
+  transition-duration: var(--cursor-duration-fast), var(--cursor-duration-fast),
+    var(--cursor-duration-instant);
+  transition-timing-function: var(--cursor-easing-default);
+}
+.checkbox {
+  border-radius: var(--r-xs);
+}
+.radio {
+  border-radius: var(--r-full);
+}
+.checkbox[aria-checked='true'],
+.checkbox[data-checked],
+.checkbox:checked,
+.radio[aria-checked='true'],
+.radio[data-checked],
+.radio:checked {
+  border-width: 0.5px;
+  border-color: var(--sand-border-quaternary-translucent);
+  background: var(--sand-bg-accent-primary);
+  color: var(--sand-text-on-primary);
+}
+.checkbox[aria-checked='true']:hover:not(:disabled),
+.checkbox[data-checked]:hover:not(:disabled),
+.checkbox:checked:hover:not(:disabled),
+.radio[aria-checked='true']:hover:not(:disabled),
+.radio[data-checked]:hover:not(:disabled),
+.radio:checked:hover:not(:disabled) {
+  background: var(--sand-bg-accent-primary-hover);
+}
+.checkbox:disabled,
+.radio:disabled {
+  background: var(--sand-bg-secondary-disabled);
+  border-color: var(--sand-border-tertiary-translucent);
+  color: var(--sand-text-quaternary);
+  cursor: not-allowed;
+}
+.checkbox:active:not(:disabled),
+.radio:active:not(:disabled) {
+  transform: scale(var(--ui-press-scale, 0.98));
+}
+.checkbox-sm { width: 14px; height: 14px; }
+.checkbox-lg { width: 18px; height: 18px; }
+.checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+}
+
+
+/* ============================================================
+   switch
+   Grok: the ui-layer Switch (`data-component=switch`).
+
+   track: width 26/30/32/38px (sm/regular/md/lg), radius full,
+          ground --cursor-bg-secondary, checked --ui-switch-active-bg,
+          transition background-color .1s ease.
+   thumb: travel 10/12/14px, ground white, checked --cursor-bg-editor.
+   ============================================================ */
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 32px;
+  height: 20px;
+  padding: 2px;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-secondary);
+  /* Grok's track carries a .5px quaternary inset ring on the off state. */
+  box-shadow: inset 0 0 0 0.5px var(--sand-border-quaternary-translucent);
+  transition-property: background-color;
+  transition-duration: var(--cursor-duration-fast);
+  transition-timing-function: var(--cursor-easing-default);
+  cursor: pointer;
+}
+.switch[aria-checked='true'],
+.switch[data-checked] {
+  background: var(--sand-bg-accent-primary);
+  box-shadow: none;
+}
+.switch:hover:not(:disabled):not([aria-checked='true']):not([data-checked]) {
+  background: var(--sand-bg-secondary-hover);
+}
+.switch[aria-checked='true']:hover:not(:disabled),
+.switch[data-checked]:hover:not(:disabled) {
+  background: var(--sand-bg-accent-primary-hover);
+}
+.switch:disabled {
+  background: var(--sand-bg-secondary-disabled);
+  cursor: not-allowed;
+}
+.switch-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--sand-bg-luminous);
+  box-shadow: 0 1px 3px 0 var(--sand-shadow-control);
+  transform: translateX(0);
+  transition: transform var(--cursor-duration-fast) var(--cursor-easing-default);
+}
+.switch[aria-checked='true'] .switch-thumb,
+.switch[data-checked] .switch-thumb {
+  transform: translateX(12px);
+}
+.switch-sm { width: 26px; height: 16px; padding: 2px; }
+.switch-sm .switch-thumb { width: 12px; height: 12px; }
+.switch-sm[aria-checked='true'] .switch-thumb { transform: translateX(10px); }
+.switch-lg { width: 38px; }
+.switch-lg[aria-checked='true'] .switch-thumb { transform: translateX(18px); }
+
+
+/* ============================================================
+   toggle
+   Grok: the "sand" Toggle (the small state pill).
+
+   min-width 18px, padding 1px 4px, radius 4px, .5px border
+   --sand-border-quaternary-translucent, ground --sand-bg-secondary,
+   ink --sand-text-secondary, tabular numerals; selected →
+   --sand-bg-accent-primary with --sand-text-on-primary.
+   ============================================================ */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 18px;
+  padding: 1px 4px;
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: var(--sand-border-tertiary-translucent);
+  border-radius: var(--r-xs);
+  background: var(--sand-bg-secondary);
+  color: var(--sand-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.toggle.selected {
+  background: var(--sand-bg-accent-primary);
+  border-color: var(--sand-bg-accent-primary);
+  color: var(--sand-text-on-primary);
+}
+.toggle-lg { width: 24px; height: 24px; min-width: 24px; border-radius: var(--r-md); }
+
+
+/* ============================================================
+   slider
+   Grok: the ui-layer Slider — an SVG track (opacity .2) and fill
+   (opacity .6) with a `stroke-dasharray` transition, rotating
+   -90deg so the dash starts at the top.
+   ============================================================ */
+
+.slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
+  touch-action: none;
+}
+.slider-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-hover);
+  overflow: hidden;
+}
+.slider-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--sand-bg-accent-primary);
+  border-radius: var(--r-full);
+  transition: width var(--cursor-duration-slow) var(--cursor-easing-out);
+}
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-inline-start: -6px;
+  border-radius: 50%;
+  background: var(--sand-bg-elevated);
+  box-shadow: 0 1px 3px 0 var(--sand-shadow-control);
+  transform: translateY(-50%);
+}
+
+
+/* ============================================================
+   badge
+   Grok: the "sand" Badge (the status pill) and the ui-layer Badge
+   (the square dot indicator).
+
+   sand badge: gap 4px, radius 9999px,
+                sm padding 4px 8px, md 6px 12px, lg 8px 16px;
+                neutralPrimary → --sand-bg-primary / --sand-text-inverted;
+                neutralSecondary → --sand-bg-secondary / --sand-text-primary;
+                neutralTertiary → transparent, hover --sand-bg-secondary;
+                accentPrimary → --sand-bg-accent-primary / --sand-text-on-primary;
+                dangerPrimary → --sand-bg-danger-primary / --sand-text-on-primary;
+                warningPrimary → --sand-bg-warn-primary / --sand-text-on-primary.
+                disabled ink → color-mix(in srgb, var(--sand-text-primary) 30%, transparent).
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 4px;
+  box-sizing: border-box;
+  border: 0;
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-secondary);
+  color: var(--sand-text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--text-base);
+  white-space: nowrap;
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+.badge-sm { padding: 4px 8px; font-size: var(--cursor-font-size-xs); }
+.badge-lg { padding: 8px 16px; }
+.badge-primary {
+  background: var(--sand-bg-accent-primary);
+  color: var(--sand-text-inverted);
+}
+.badge-primary:hover:not(:disabled) {
+  background: var(--sand-bg-accent-primary-hover);
+}
+.badge-accent {
+  background: var(--sand-bg-accent-primary);
+  color: var(--sand-text-on-primary);
+}
+.badge-accent:hover:not(:disabled) {
+  background: var(--sand-bg-accent-primary-hover);
+}
+.badge-danger {
+  background: var(--sand-bg-danger-primary);
+  color: var(--sand-text-on-primary);
+}
+.badge-danger:hover:not(:disabled) {
+  background: var(--sand-bg-danger-primary-hover);
+}
+.badge-warning {
+  background: var(--sand-bg-warn-primary);
+  color: var(--sand-text-on-primary);
+}
+.badge-warning:hover:not(:disabled) {
+  background: var(--sand-bg-warn-primary-hover);
+}
+.badge-outline {
+  background: transparent;
+  border: 1px solid var(--sand-border-secondary-translucent);
+  color: var(--sand-text-primary);
+}
+.badge-outline:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sand-text-primary) 7%, transparent);
+}
+.badge:disabled {
+  color: color-mix(in srgb, var(--sand-text-primary) 30%, transparent);
+  cursor: default;
+}
+.badge-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sand-text-quaternary);
+  flex: none;
+}
+.badge-dot.badge-dot-success { background: var(--sand-text-success-primary); }
+.badge-dot.badge-dot-danger { background: var(--sand-text-danger-primary); }
+.badge-dot.badge-dot-accent { background: var(--sand-text-accent-primary); }
+
+
+/* ============================================================
+   chip
+   Grok: the "sand" Chip.
+
+   inline-flex, align-items center, gap 4px, height 22px,
+   padding-inline 6px 8px, radius 9999px,
+   ground --sand-bg-success-primary, ink --sand-text-on-primary,
+   tabular numerals.
+   ============================================================ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  height: 22px;
+  padding-inline-start: 6px;
+  padding-inline-end: 8px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-success-primary);
+  color: var(--sand-text-on-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.chip .chip-trailing {
+  margin-inline-start: auto;
+  color: inherit;
+}
+
+
+/* ============================================================
+   tag
+   Grok: the "sand" Tag and the ui-layer Tag.
+
+   sand tag: padding-block 1px, padding-inline 4px, .5px border
+              --sand-border-quaternary-translucent, radius 4px,
+              ground --sand-bg-quaternary, ink --sand-text-secondary.
+   ui tag:    sm min-width 16px padding-inline 3px,
+              md min-width 18px padding-inline 5px,
+              lg min-width 20px padding-inline 7px.
+   ============================================================ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-block: 1px;
+  padding-inline: 4px;
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: var(--sand-border-tertiary-translucent);
+  border-radius: var(--r-xs);
+  background: var(--sand-bg-quaternary);
+  color: var(--sand-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tag-sm { min-width: 16px; padding-inline: 3px; }
+.tag-md { min-width: 18px; padding-inline: 5px; }
+.tag-lg { min-width: 20px; padding-inline: 7px; }
+
+
+/* ============================================================
+   card
+   Grok: the "sand" Card surface (0.75.0 recipe table, atoms DB):
+
+     card       kmVPX3 sand-1717udv (padding 0) + kaIpWk sand-lstp0r
+                (radius 24px) + kWkggS sand-10e981r (bg-elevated) +
+                kMwMTN sand-tyxrsu (text-primary) + kGVxlE sand-vvvtqg
+                (ring .5px tertiary-translucent + 0 2px 8px shadow-card)
+     focus      sand-1yjwc84 adds 0 0 0 2px border-focus-primary
+     elevated   sand-19t2mki (radius 22px) + sand-n81uee
+                (ring .5px attachment-card + 0 1px 4px shadow-secondary
+                + 0 6px 12px shadow-card)
+   The hairline is part of the box-shadow, not a border, so the
+   surface keeps a crisp edge at any radius.
+   ============================================================ */
+
+.card {
+  box-sizing: border-box;
+  background: var(--sand-bg-elevated);
+  border: 0;
+  border-radius: 24px;
+  color: var(--sand-text-primary);
+  box-shadow:
+    0 0 0 0.5px var(--sand-border-tertiary-translucent),
+    0 2px 8px var(--sand-shadow-card);
+}
+.card:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 0.5px var(--sand-border-tertiary-translucent),
+    0 2px 8px var(--sand-shadow-card),
+    0 0 0 2px var(--sand-border-focus-primary);
+}
+.card.card-elevated {
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 0.5px var(--sand-border-attachment-card),
+    0 1px 4px var(--sand-shadow-secondary),
+    0 6px 12px var(--sand-shadow-card);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cursor-spacing-2);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--sand-border-tertiary-translucent);
+}
+.card-body {
+  padding: 12px 14px;
+}
+.card-title {
+  font-weight: var(--sand-font-weight-medium, 500);
+  font-size: var(--text-md);
+  color: var(--sand-text-primary);
+}
+.card-hint {
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+
+/* ============================================================
+   panel
+   Grok: the "sand" Panel (the settings row shell).
+
+   display flex, align-items center, justify-content space-between,
+   gap 8px, min-height 36px, padding 8px, radius 10px,
+   ink --sand-text-tertiary.
+   ============================================================ */
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cursor-spacing-2);
+  min-height: 36px;
+  box-sizing: border-box;
+  padding: var(--cursor-spacing-2);
+  border-radius: var(--r-lg);
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-sm);
+}
+.panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--cursor-spacing-2);
+  padding: 10px 14px;
+}
+.panel-title {
+  color: var(--sand-text-primary);
+  font-weight: var(--sand-font-weight-medium, 500);
+}
+
+
+/* ============================================================
+   menu  (Grok's Menu — and, by the same recipe, the dropdown)
+   Grok: the ui-layer Menu.
+
+   popup: min-width 120px, max-width 320px, radius --cursor-radius-2xl,
+          hairline :after ring, --ui-popup-box-shadow.
+   inner: padding --ui-menu-inner-padding (4px), list gap 1px.
+   row:   min-height 30px, padding-block 4px, padding-inline 14px,
+          radius --ui-menu-row-border-radius, gap 6px,
+          hover --cursor-bg-quaternary, selected --cursor-bg-tertiary.
+   divider: 1px --ui-menu-divider-color, margin-block 6px.
+   section title: ink --cursor-text-tertiary, padding-inline 8px.
+   ============================================================ */
+
+.menu {
+  position: relative;
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-width: 120px;
+  max-width: 320px;
+  max-height: min(360px, 100vh);
+  padding: var(--cursor-spacing-1);
+  border-radius: var(--sand-menu-radius);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+}
+.menu-item {
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  gap: var(--cursor-spacing-1-5);
+  min-height: var(--sand-menu-row-height);
+  padding-block: var(--cursor-spacing-1);
+  padding-inline: var(--cursor-spacing-3-5);
+  border-radius: var(--sand-menu-row-radius);
+  background: transparent;
+  color: var(--sand-text-primary);
+  cursor: pointer;
+  text-align: start;
+}
+.menu-item:hover,
+.menu-item[data-highlighted='true'] {
+  background: var(--sand-bg-hover);
+}
+.menu-item[aria-selected='true'],
+.menu-item.selected {
+  background: var(--sand-bg-tertiary);
+}
+.menu-item:disabled {
+  color: var(--sand-text-tertiary);
+  cursor: default;
+}
+.menu-item-muted { color: var(--sand-text-quaternary); }
+.menu-item-label {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu-item-description {
+  color: var(--sand-text-secondary);
+  font-size: var(--text-xs);
+}
+.menu-item-leading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 14px;
+  height: 16px;
+  color: var(--sand-text-secondary);
+}
+.menu-item-trailing {
+  flex: none;
+  color: var(--sand-text-tertiary);
+}
+.menu-divider,
+.menu-sep {
+  display: block;
+  height: 1px;
+  margin-block: var(--cursor-spacing-1-5);
+  border-top: 1px solid var(--sand-border-tertiary-translucent);
+  pointer-events: none;
+}
+.menu-section-title {
+  padding-block: var(--cursor-spacing-1-5);
+  padding-inline: var(--cursor-spacing-2);
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--sand-font-weight-medium, 500);
+}
+.menu-empty {
+  padding: var(--cursor-spacing-2);
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+
+/* ============================================================
+   dropdown  (Grok's Select list — the "sand" select rows)
+   Grok: the "sand" select rows.
+
+   row: padding 8px, gap 8px, radius 7.5px on the ends,
+        hover --sand-bg-hover, selected --sand-bg-active,
+        ink --sand-text-primary.
+   ============================================================ */
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 180px;
+  padding: var(--cursor-spacing-1);
+  border-radius: var(--r-lg);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  overflow-y: auto;
+  max-height: min(360px, 100vh);
+}
+.dropdown-row,
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-2);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--sand-text-primary);
+  cursor: pointer;
+  text-align: start;
+}
+.dropdown-row:hover,
+.dropdown-item:hover {
+  background: var(--sand-bg-hover);
+}
+.dropdown-row[aria-selected='true'],
+.dropdown-item[aria-selected='true'] {
+  background: var(--sand-bg-active);
+}
+.dropdown-row:disabled,
+.dropdown-item:disabled {
+  color: var(--sand-text-quaternary);
+  cursor: default;
+}
+.dropdown-divider {
+  height: 1px;
+  margin-block: var(--cursor-spacing-1);
+  background: var(--sand-border-tertiary-translucent);
+}
+
+
+/* ============================================================
+   popover
+   Grok: the ui-layer Popup.
+
+   surface: ground --cursor-bg-elevated, radius --cursor-radius-xl,
+            shadow --ui-popup-box-shadow, padding 6px 8px,
+            max-width 300px, overflow-wrap anywhere.
+   positioner: z-index --ui-portal-layer-z-index-popover.
+   entrance: transform-origin, fade + translate, .1s
+             --cursor-easing-out-quint.
+   ============================================================ */
+
+.popover {
+  position: relative;
+  box-sizing: border-box;
+  display: block;
+  width: max-content;
+  max-width: 300px;
+  max-height: min(360px, 100vh);
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border-radius: var(--cursor-radius-xl);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  color: var(--sand-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--cursor-font-size-base);
+  line-height: var(--cursor-line-height-base);
+  letter-spacing: var(--cursor-letter-spacing-base);
+  overflow-wrap: anywhere;
+  isolation: isolate;
+  animation: grok-popover-in var(--cursor-duration-fast) var(--cursor-easing-out-quint);
+}
+.popover-lg { padding: var(--cursor-spacing-2-5); }
+@keyframes grok-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+
+/* ============================================================
+   tooltip
+   Grok: the ui-layer Tooltip surface.
+
+   font-size --ui-tooltip-font-size (13px), line-height 18px,
+   letter-spacing --cursor-letter-spacing-base,
+   padding 6px 10px, radius --cursor-radius-lg (8px),
+   shadow --ui-tooltip-box-shadow, hairline width
+   --ui-tooltip-border-width (1px).
+   ============================================================ */
+
+.tooltip {
+  position: relative;
+  z-index: 100000;
+  display: block;
+  width: max-content;
+  max-width: 300px;
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2-5);
+  border-radius: var(--r-md);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-inline);
+  color: var(--sand-text-primary);
+  font-size: var(--cursor-font-size-base);
+  line-height: var(--cursor-line-height-base);
+  letter-spacing: var(--cursor-letter-spacing-base);
+  pointer-events: none;
+  animation: grok-popover-in var(--cursor-duration-fast) var(--cursor-easing-out-quint);
+}
+
+
+/* ============================================================
+   tab
+   Grok: the "sand" Tabs.
+
+   tab: display flex, align-items center, gap 6px, padding 4px 10px,
+        radius 9999px, transparent ground, ink --sand-text-secondary,
+        hover color-mix(in srgb, var(--sand-text-primary) 7%, transparent),
+        active ground color-mix(in srgb, var(--sand-text-primary) 12%, transparent)
+        with ink --sand-text-primary, font 12px,
+        transition background .12s ease.
+   status dot: 6px circle — accent / success / danger / neutral.
+   ============================================================ */
+
+.tab,
+.dock-tab,
+.rail-tab,
+.settings-tab,
+.browser-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1-5);
+  max-width: 200px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--sand-text-secondary);
+  font-size: var(--cursor-font-size-xs);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+/* The dock and browser tabs are `<button>`s and Quansiox declares them
+   flat, so the ported recipe is scoped to the element. */
+button.dock-tab,
+button.browser-tab,
+.dock-tab,
+.browser-tab {
+  max-width: none;
+  padding: 6px 12px;
+  border-radius: var(--r-sm) var(--r-sm) 0 0;
+  font-size: var(--text-sm);
+  font-weight: 560;
+  color: var(--sand-text-tertiary);
+}
+button.dock-tab:hover,
+button.browser-tab:hover {
+  background: color-mix(in srgb, var(--sand-text-primary) 7%, transparent);
+  color: var(--sand-text-primary);
+}
+button.dock-tab.active,
+button.browser-tab.active {
+  background: var(--sand-bg-elevated);
+  border-color: var(--sand-border-tertiary-translucent);
+  border-bottom-color: var(--sand-bg-elevated);
+  color: var(--sand-text-accent-primary);
+}
+.tab:hover,
+.dock-tab:hover,
+.rail-tab:hover,
+.settings-tab:hover,
+.browser-tab:hover {
+  background: color-mix(in srgb, var(--sand-text-primary) 7%, transparent);
+  color: var(--sand-text-primary);
+}
+.tab.active,
+.tab[aria-selected='true'],
+.dock-tab.active,
+.settings-tab.active,
+.browser-tab.active {
+  background: color-mix(in srgb, var(--sand-text-primary) 12%, transparent);
+  color: var(--sand-text-primary);
+}
+.tab-label {
+  flex: none;
+  color: var(--sand-text-primary);
+  font-size: var(--cursor-font-size-sm);
+}
+.tab-status-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sand-text-quaternary);
+}
+.tab-status-dot.running { background: var(--sand-text-accent-primary); }
+.tab-status-dot.done { background: var(--sand-text-success-primary); }
+.tab-status-dot.error { background: var(--sand-text-danger-primary); }
+
+
+/* ============================================================
+   segmented
+   Grok: the SegmentedControl (chunk-SegmentedControl-xFKUo7cC.js).
+
+   base: display inline-flex, align-items stretch, ground
+         --cursor-bg-quaternary, radius --cursor-radius-full,
+         padding 2px (padded) / 3px (outline).
+   thumb ("fill"): absolutely positioned, radius
+         calc(var(--cursor-radius-base) - var(--cursor-spacing-0-5)),
+         transition transform .2s ease-out.
+   item height: sm 18px, md 22px, lg 26px, xl 30px.
+   ============================================================ */
+
+.segmented {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: var(--cursor-spacing-0-5);
+  border-radius: var(--r-full);
+  background: var(--sand-bg-quaternary);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.segmented.outline {
+  box-shadow: inset 0 0 0 1px var(--sand-border-secondary-translucent);
+  padding: var(--cursor-spacing-0-75);
+}
+.segmented.outline[data-disabled='true'] {
+  box-shadow: inset 0 0 0 1px var(--sand-border-tertiary-translucent);
+}
+.segmented-item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 22px;
+  padding-inline: var(--cursor-spacing-2);
+  border: 0;
+  border-radius: calc(var(--cursor-radius-base) - var(--cursor-spacing-0-5));
+  background: transparent;
+  color: var(--sand-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: color var(--cursor-duration-slow) var(--cursor-easing-out);
+}
+.segmented-item[aria-selected='true'],
+.segmented-item.selected {
+  color: var(--sand-text-primary);
+}
+.segmented-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  inset-inline-start: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--cursor-radius-base) - var(--cursor-spacing-0-5));
+  background: var(--sand-bg-elevated);
+  transform: translateX(0);
+  transition: transform var(--cursor-duration-slow) var(--cursor-easing-out);
+  will-change: transform;
+}
+.segmented-sm .segmented-item { height: 18px; }
+.segmented-lg .segmented-item { height: 26px; }
+.segmented-xl .segmented-item { height: 30px; }
+
+
+/* ============================================================
+   dialog  (and sheet — Grok's modal surface + scrim)
+   Grok: the ui-layer Dialog and the "sand" modal.
+
+   backdrop: position fixed, inset 0, z-index
+             --ui-portal-layer-z-index-modal (3000),
+             ground rgba(0,0,0,0.5), fade in .3s
+             cubic-bezier(.165,.84,.44,1).
+   content: top 50% / left 50%, z-index modal+1, width 320/400/480/
+            560/640px, max-width calc(100vw - 32px),
+            max-height calc(100vh - 32px), radius --cursor-radius-xl,
+            1px border --cursor-stroke-secondary, elevated ground,
+            zoom-in .3s cubic-bezier(.165,.84,.44,1).
+   ============================================================ */
+
+.modal-overlay,
+.prompt-overlay,
+.confirm-overlay,
+.grace-close-overlay {
+  background: var(--sand-bg-scrim);
+}
+.prompt-dialog,
+.confirm-card,
+.grace-close-card,
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: calc(3000 + 1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  border: 1px solid var(--sand-border-secondary-translucent);
+  border-radius: var(--cursor-radius-xl);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-modal);
+  color: var(--sand-text-primary);
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  animation: grok-dialog-in 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+@keyframes grok-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+}
+.modal-sm { width: 320px; }
+.modal-md { width: 400px; }
+.modal-lg { width: 480px; }
+.modal-xl { width: 560px; }
+.modal-2xl { width: 640px; }
+.modal header,
+.prompt-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cursor-spacing-2);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sand-border-tertiary-translucent);
+  font-weight: var(--sand-font-weight-medium, 500);
+}
+.modal-body,
+.prompt-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--cursor-spacing-3);
+}
+.modal-actions,
+.prompt-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--cursor-spacing-2);
+  padding: 12px 16px;
+  border-top: 1px solid var(--sand-border-tertiary-translucent);
+}
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--sand-text-tertiary);
+  cursor: pointer;
+}
+.modal-close:hover { background: var(--sand-bg-hover); color: var(--sand-text-primary); }
+
+/* The sheet: Grok's scrim + a bottom-anchored surface. */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--sand-bg-scrim);
+}
+.sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: min(80vh, 720px);
+  border-top-left-radius: var(--cursor-radius-xl);
+  border-top-right-radius: var(--cursor-radius-xl);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-modal);
+  animation: grok-sheet-in 300ms cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+@keyframes grok-sheet-in {
+  from { transform: translateY(16px); opacity: 0; }
+}
+
+
+/* ============================================================
+   toast
+   Grok: the "sand" Toast.
+
+   display flex, align-items center, gap 8px, padding 9px 12px,
+   radius 9px, ground --sand-bg-elevated, shadow
+   --sand-shadow-popover, font-size 12.5px, ink
+   --sand-text-primary.
+   ============================================================ */
+
+.toast,
+div.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  color: var(--sand-text-primary);
+  font-size: 12.5px;
+  line-height: var(--cursor-line-height-base);
+}
+.toast .t-icon { color: var(--sand-text-accent-primary); }
+.toast.ok .t-icon { color: var(--sand-text-success-primary); }
+.toast.err .t-icon { color: var(--sand-text-danger-primary); }
+.toast.warn .t-icon { color: var(--sand-text-warn-primary); }
+.toast .t-msg { flex: 1 1 auto; min-width: 0; }
+.toast .t-close {
+  border: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+  padding: 2px 4px;
+  cursor: pointer;
+}
+.toast .t-close:hover { background: var(--sand-bg-hover); color: var(--sand-text-primary); }
+
+
+/* ============================================================
+   avatar
+   Grok: the "sand" Avatar.
+
+   display inline-flex, align-items center, justify-content center,
+   radius 9999px, ground --sand-bg-quaternary, ink
+   --sand-text-secondary, overflow hidden.
+   menu avatar 18px (font 9px), settings avatar 28px (font 12px).
+   ============================================================ */
+
+.avatar,
+.pill-avatar,
+.session-avatar,
+.palette-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-quaternary);
+  color: var(--sand-text-secondary);
+  object-fit: cover;
+}
+.avatar-xs { width: 18px; height: 18px; font-size: 9px; }
+.avatar-sm { width: 24px; height: 24px; font-size: 10px; }
+.avatar-md { width: 28px; height: 28px; font-size: var(--cursor-font-size-sm); }
+.avatar-lg { width: 40px; height: 40px; font-size: var(--text-md); }
+.avatar-xl { width: 56px; height: 56px; font-size: var(--text-lg); }
+
+
+/* ============================================================
+   kbd
+   Grok: the ui-layer Kbd (the keyboard chord chip).
+
+   label group: inline-flex, align-items center, gap 6px,
+   kbd: font-family "SF Pro" / sans, weight 400, opacity .5.
+   ============================================================ */
+
+/* Grok's kbd is a quiet label: the whole chip is faded to 50%, it is
+   set in the UI sans face, and it has no keycap border. The element
+   qualifier puts the ported recipe above Quansiox's flat `kbd` rule. */
+kbd,
+body kbd {
+  font-family: var(--font-sans);
+  font-size: var(--cursor-font-size-xs);
+  line-height: var(--cursor-line-height-base);
+  color: var(--sand-text-primary);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  opacity: 0.5;
+}
+.kbd-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1-5);
+  min-width: 0;
+  max-width: 100%;
+}
+.kbd-group > kbd { flex: none; }
+
+
+/* ============================================================
+   scrollbar
+   Grok: the ui-layer ScrollArea.
+
+   base: display grid, grid-template 1fr/1fr, scroll padding 4px.
+   viewport: overflow-y auto, scroll-padding 4px,
+             overscroll-behavior-y contain.
+   thumb: radius full, ground --cursor-stroke-tertiary, hover/active
+          --cursor-stroke-secondary, width/height
+          var(--scrollbar-size) (6px), transition
+          background-color,opacity .15s ease.
+   ============================================================ */
+
+.scroll-area {
+  position: relative;
+  display: grid;
+  grid-template: 1fr / 1fr;
+  overflow: hidden;
+}
+.scroll-area-viewport {
+  grid-area: 1 / 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-padding-top: var(--cursor-spacing-1);
+  scroll-padding-bottom: var(--cursor-spacing-1);
+  overscroll-behavior-y: contain;
+}
+.scroll-area-thumb {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  width: var(--scrollbar-size);
+  min-height: var(--cursor-spacing-5);
+  border-radius: var(--r-full);
+  background: var(--sand-border-tertiary-translucent);
+  opacity: 0.5;
+  pointer-events: auto;
+  transition: background-color var(--cursor-duration-normal) var(--cursor-easing-default),
+    opacity var(--cursor-duration-normal) var(--cursor-easing-default);
+}
+.scroll-area-thumb:hover,
+.scroll-area-thumb[data-active='true'] {
+  background: var(--sand-border-secondary-translucent);
+  opacity: 1;
+}
+
+
+/* ============================================================
+   separator  (Grok's Divider)
+   Grok: the ui-layer Divider.
+
+   horizontal: width 100%, height 1px, ground
+               --cursor-stroke-tertiary, margin-block
+               --ui-divider-spacing (2px by default).
+   vertical:   width 1px, height auto, align-self stretch,
+               margin-inline --ui-divider-spacing.
+   ============================================================ */
+
+.separator,
+.hr,
+.divider {
+  flex: none;
+  width: 100%;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid var(--sand-border-tertiary-translucent);
+  margin-block: var(--cursor-spacing-0-5);
+  background: none;
+  list-style: none;
+}
+.separator.vertical,
+.hr.vertical,
+.divider.vertical {
+  width: 1px;
+  height: auto;
+  align-self: stretch;
+  border-top: 0;
+  border-left: 1px solid var(--sand-border-tertiary-translucent);
+  margin-block: 0;
+  margin-inline: var(--cursor-spacing-0-5);
+}
+.separator.flush { margin-block: 0; }
+
+
+/* ============================================================
+   skeleton
+   Grok: the `skeletonBar` of the session card.
+
+   height 12px, radius 6px, ground is a 100deg shimmer:
+     linear-gradient(100deg, var(--sand-bg-secondary-disabled) 0%,
+       color-mix(in srgb, var(--sand-bg-secondary-disabled) 60%,
+         var(--sand-text-primary) 6%) 50%,
+       var(--sand-bg-secondary-disabled) 100%)
+   background-size 200% 100%, animation 1.4s ease-in-out infinite.
+   ============================================================ */
+
+.skeleton {
+  height: 12px;
+  border-radius: 6px;
+  background-image: linear-gradient(
+    100deg,
+    var(--sand-bg-secondary-disabled) 0%,
+    color-mix(in srgb, var(--sand-bg-secondary-disabled) 60%, var(--sand-text-primary) 6%) 50%,
+    var(--sand-bg-secondary-disabled) 100%
+  );
+  background-size: 200% 100%;
+  animation: grok-skeleton 1.4s ease-in-out infinite;
+}
+.skeleton-button { width: 148px; }
+@keyframes grok-skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+
+/* ============================================================
+   spinner
+   Grok: the ui-layer spinner (an SVG arc) — `--cursor-spinner-sync-duration`
+   (1s) with the arc stroked in --cursor-icon-blue-primary and the
+   idle arc at opacity 0.
+   ============================================================ */
+
+.spinner {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 2px solid color-mix(in srgb, var(--sand-text-accent-primary) 25%, transparent);
+  border-top-color: var(--sand-text-accent-primary);
+  border-radius: 50%;
+  animation: grok-spin 0.7s linear infinite;
+}
+@keyframes grok-spin {
+  to { transform: rotate(360deg); }
+}
+.spinner-arc {
+  stroke: var(--sand-text-accent-primary);
+  opacity: 1;
+}
+.spinner-arc-idle {
+  opacity: 0;
+}
+
+
+/* ============================================================
+   progress
+   Grok: the add-plugin progress bar — the fill is scaled on X by
+   `--ui-add-plugin-progress` (a percentage, / 100), and Grok's
+   media progress uses `--sand-bg-primary` for the played part.
+   ============================================================ */
+
+.progress {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--sand-bg-secondary);
+  overflow: hidden;
+}
+.progress::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sand-bg-accent-primary);
+  transform: scaleX(calc(0 * 0.01));
+  transform-origin: left center;
+  transition: transform var(--cursor-duration-normal) var(--cursor-easing-default);
+}
+.progress-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sand-bg-accent-primary);
+  transition: width var(--cursor-duration-normal) var(--cursor-easing-default);
+}
+
+
+/* ============================================================
+   banner
+   Grok: the ui-layer tray banner, and the "sand" hint pill — the
+   closest thing Grok ships to a banner.
+
+   hint: padding-block 6px, padding-inline 12px, radius 9999px,
+         .5px border --sand-border-secondary-translucent,
+         ground --sand-bg-elevated, shadow --sand-shadow-popover,
+         ink --sand-text-secondary.
+   ============================================================ */
+
+.banner,
+.cu-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding-block: 6px;
+  padding-inline: 12px;
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: var(--sand-border-secondary-translucent);
+  border-radius: var(--r-full);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  color: var(--sand-text-secondary);
+  font-size: var(--text-sm);
+}
+.banner.accent {
+  border-color: var(--sand-border-accent-primary);
+  color: var(--sand-text-accent-primary);
+}
+.banner.danger {
+  border-color: var(--sand-border-danger-primary);
+  color: var(--sand-text-danger-primary);
+}
+.banner .live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+
+/* ============================================================
+   callout
+   Grok: the "sand" inline status strip (text / textDanger /
+   action / ghostAction / cautionIcon) and the rte-callout lead.
+
+   text: ink --sand-text-secondary, margin 0.
+   textDanger: ink --sand-text-danger-primary-primary.
+   action: padding-inline 14px.
+   ghostAction: ink --sand-text-secondary, disabled → tertiary.
+   cautionIcon: ink --sand-text-warn-primary.
+   ============================================================ */
+
+.callout {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: 6px 12px;
+  border-radius: var(--r-md);
+  background: var(--sand-bg-quaternary);
+  color: var(--sand-text-secondary);
+  font-size: var(--text-sm);
+}
+.callout-text { margin: 0; color: var(--sand-text-secondary); }
+.callout-text.danger { color: var(--sand-text-danger-primary); }
+.callout-caution { color: var(--sand-text-warn-primary); flex: none; }
+.callout-action {
+  flex: none;
+  margin-inline: 0;
+  padding-inline: 14px;
+  border: 0;
+  background: transparent;
+  color: var(--sand-text-secondary);
+  cursor: pointer;
+}
+.callout-action:hover { color: var(--sand-text-primary); }
+.callout-action:disabled { color: var(--sand-text-tertiary); }
+.callout-lead {
+  display: block;
+  font-weight: var(--sand-font-weight-medium, 500);
+  margin-bottom: 2px;
+}
+
+
+/* ============================================================
+   accordion — NOT IN GROK'S CSS.
+   Grok ships `collapsible` (below) but no accordion recipe.
+   ============================================================ */
+
+
+/* ============================================================
+   breadcrumb
+   Grok: the "sand" breadcrumb crumb.
+
+   crumb: inline-flex, align-items center, padding-block 3px,
+          padding-inline 8px, radius 6px, transparent ground,
+          ink --sand-text-secondary, hover --sand-bg-active;
+   crumbCurrent: ground --sand-bg-active, ink --sand-text-primary;
+   separator: ink --sand-text-secondary;
+   source: monospace, padding-inline 4px.
+   ============================================================ */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1);
+  flex-wrap: wrap;
+}
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 3px;
+  padding-inline: var(--cursor-spacing-2);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sand-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.breadcrumb-item:hover { background: var(--sand-bg-active); color: var(--sand-text-primary); }
+.breadcrumb-item.current {
+  background: var(--sand-bg-active);
+  color: var(--sand-text-primary);
+  cursor: default;
+}
+.breadcrumb-separator {
+  color: var(--sand-text-secondary);
+  user-select: none;
+}
+.breadcrumb-source {
+  font-family: var(--font-mono);
+  padding-inline: 4px;
+  color: var(--sand-text-secondary);
+}
+
+
+/* ============================================================
+   command-menu
+   Grok: the "sand" command palette.
+
+   radius --sand-command-palette-radius (--cursor-radius-xl, 12px),
+   row gap --sand-command-palette-row-gap (8px).
+   ============================================================ */
+
+.command-menu {
+  position: relative;
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sand-command-palette-row-gap);
+  box-sizing: border-box;
+  min-width: 240px;
+  max-width: min(420px, calc(100vw - 32px));
+  max-height: min(420px, calc(100vh - 32px));
+  padding: var(--cursor-spacing-2);
+  border-radius: var(--sand-command-palette-radius);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  color: var(--sand-text-primary);
+  overflow-y: auto;
+}
+.command-menu-search {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border-bottom: 1px solid var(--sand-border-tertiary-translucent);
+}
+.command-menu-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sand-text-primary);
+  font: inherit;
+  outline: none;
+}
+.command-menu-search input::placeholder { color: var(--sand-text-tertiary); }
+.command-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border-radius: var(--r-sm);
+  color: var(--sand-text-primary);
+  cursor: pointer;
+}
+.command-menu-item:hover,
+.command-menu-item[data-selected='true'] {
+  background: var(--sand-bg-hover);
+}
+.command-menu-group-title {
+  padding: var(--cursor-spacing-1) var(--cursor-spacing-2);
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+}
+.command-menu-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-4);
+  color: var(--sand-text-tertiary);
+  text-align: center;
+}
+
+/* Quansiox's own command popup is the same primitive: it takes the
+   palette's radius and row rhythm. */
+.cmd-popup,
+div.cmd-popup {
+  border-radius: var(--sand-command-palette-radius);
+  row-gap: var(--sand-command-palette-row-gap);
+}
+.cmd-item,
+button.cmd-item {
+  min-height: 49px;
+}
+
+
+/* ============================================================
+   search
+   Grok: the "sand" search field.
+
+   header: padding 12px 10px, bottom hairline.
+   icon: 20px square, ink --sand-text-tertiary.
+   input: transparent ground, no border, ink --sand-text-primary,
+          placeholder --sand-text-tertiary.
+   results: row-gap 2px.
+   ============================================================ */
+
+.search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-3) var(--cursor-spacing-2-5);
+  border-bottom: 1px solid var(--sand-border-tertiary-translucent);
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+}
+.search-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--sand-text-tertiary);
+}
+.search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sand-text-primary);
+  font: inherit;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.search-input::placeholder { color: var(--sand-text-tertiary); }
+.search-results {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2px;
+}
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border-radius: var(--r-sm);
+  color: var(--sand-text-primary);
+  cursor: pointer;
+}
+.search-row:hover { background: var(--sand-bg-hover); }
+.search-row-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.search-empty { color: var(--sand-text-danger-primary); }
+
+
+/* ============================================================
+   table
+   Grok: the "sand" table header / body.
+
+   header: align-items center, gap 16px, padding 32px 20px,
+           centred.
+   body:   display flex, flex-direction column, gap 16px,
+           padding 20px, focus ring with a -2px offset.
+   item title: ink --sand-text-primary; detail: --sand-text-secondary;
+   footnote: --sand-text-tertiary.
+   ============================================================ */
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cursor-spacing-4);
+  width: 100%;
+  color: var(--sand-text-primary);
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-4);
+  padding: var(--cursor-spacing-8) var(--cursor-spacing-5);
+  text-align: center;
+}
+.table-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cursor-spacing-4);
+  padding: var(--cursor-spacing-5);
+}
+.table-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-4);
+  padding: var(--cursor-spacing-3) var(--cursor-spacing-4);
+  border-radius: var(--r-md);
+}
+.table-row:hover { background: var(--sand-bg-hover); }
+.table-title { color: var(--sand-text-primary); }
+.table-detail { color: var(--sand-text-secondary); }
+.table-footnote {
+  margin-block: 0;
+  color: var(--sand-text-tertiary);
+  text-align: center;
+  font-size: var(--text-xs);
+}
+
+
+/* ============================================================
+   list
+   Grok: the "sand" list and the ui-layer List.
+
+   sand list: display flex, flex-direction column, gap 14px,
+              width 100%, max-height 280px, overflow-y auto,
+              no margin, no padding, list-style none.
+   ui row:    display flex, align-items center, gap 8px,
+              height 28px, padding 0 8px, radius 6px,
+              transparent ground, hover --cursor-bg-tertiary,
+              selected --cursor-bg-secondary.
+   ============================================================ */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-height: 280px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  min-height: 28px;
+  padding: var(--cursor-spacing-1-5) var(--cursor-spacing-2);
+  border-radius: var(--cursor-radius-base);
+  background: transparent;
+  color: var(--sand-text-primary);
+  cursor: pointer;
+  text-align: start;
+}
+.list-row:hover { background: var(--sand-bg-hover); }
+/* Grok's selected row is accent-tinted (rowSelected: bg-accent-secondary-hover). */
+.list-row.selected,
+.list-row[aria-selected='true'] {
+  background: var(--sand-bg-accent-secondary-hover);
+}
+.list-row:disabled {
+  color: var(--sand-text-tertiary);
+  cursor: not-allowed;
+}
+.list-row-label {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.list-row-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1);
+  flex: none;
+  color: var(--sand-text-secondary);
+}
+.list-row-leading {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--sand-text-secondary);
+}
+
+
+/* ============================================================
+   hover-card
+   Grok: the "sand" link hover card.
+
+   surface: --ui-surface-hairline-width (.5px) hairline,
+            weak border --sand-border-quaternary-translucent,
+            radius --cursor-radius-xl, elevated ground,
+            shadow --ui-popup-box-shadow.
+   value label: 1-line clamp, wrap, overflow-wrap anywhere.
+   ============================================================ */
+
+.hover-card {
+  position: relative;
+  z-index: 4000;
+  box-sizing: border-box;
+  display: block;
+  width: max-content;
+  max-width: 320px;
+  padding: var(--cursor-spacing-2-5);
+  border: 0.5px solid var(--sand-border-tertiary-translucent);
+  border-radius: var(--cursor-radius-xl);
+  background: var(--sand-bg-elevated);
+  box-shadow: var(--sand-shadow-popover);
+  color: var(--sand-text-primary);
+}
+.hover-card:focus-visible {
+  border-color: var(--sand-border-primary-translucent);
+}
+.hover-card-value {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  text-wrap-mode: wrap;
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   collapsible
+   Grok: the ui-layer Collapsible (`data-component=collapsible-header`).
+
+   header: cursor pointer when [data-collapsible=true];
+           chevron opacity 0 until the panel is open or hovered,
+           rotating 90deg when open;
+           content gap --ui-collapsible-content-gap (4px),
+           content outdent --ui-collapsible-content-outdent.
+   action hover ink --cursor-text-secondary / tertiary.
+   ============================================================ */
+
+.collapsible {
+  display: flex;
+  flex-direction: column;
+}
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1);
+  cursor: pointer;
+}
+.collapsible-header[data-collapsible='true'] { cursor: pointer; }
+.collapsible-chevron {
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--cursor-duration-normal) ease;
+  transform: rotate(0deg);
+}
+.collapsible:hover > .collapsible > .collapsible-header > .collapsible-chevron,
+.collapsible-header:hover .collapsible-chevron {
+  opacity: 1;
+}
+.collapsible-header[data-panel-open='true'] .collapsible-chevron {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+.collapsible-header:hover .collapsible-action {
+  color: var(--sand-text-secondary);
+}
+.collapsible-header:hover .collapsible-details {
+  color: var(--sand-text-tertiary);
+}
+.collapsible-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cursor-spacing-1);
+  padding-top: var(--cursor-spacing-1);
+  margin-inline: 0px;
+}
+.collapsible-action { color: var(--sand-text-tertiary); }
+.collapsible-details { color: var(--sand-text-quaternary); }
+
+
+/* ============================================================
+   group
+   Grok: the "sand" group divider and the ui-layer group label.
+
+   group divider: absolutely positioned 1px rule inset-inline 16px,
+                  ground --sand-border-tertiary-translucent.
+   caption: padding 10px 16px, ink --sand-text-tertiary,
+            letter-spacing .01em.
+   ============================================================ */
+
+.group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.group-divider {
+  position: absolute;
+  top: 0;
+  inset-inline: var(--cursor-spacing-4);
+  width: auto;
+  height: 1px;
+  background: var(--sand-border-tertiary-translucent);
+}
+.group-caption {
+  padding: 10px 16px;
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+  letter-spacing: 0.01em;
+}
+.group-label {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-1);
+  min-height: 24px;
+  padding-inline: var(--cursor-spacing-2);
+  color: var(--sand-text-tertiary);
+  font-size: var(--text-xs);
+}
+.group-member-row {
+  display: flex;
+  align-items: center;
+  gap: var(--cursor-spacing-2);
+  padding: 5px 7px;
+  border-radius: var(--r-sm);
+}
+.group-member-row:hover { background: var(--sand-bg-hover); }
