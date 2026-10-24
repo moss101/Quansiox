@@ -125,6 +125,9 @@ const SURFACES = [
   // P2.4 thread status: seeded running/finished async tasks + a pending
   // approval + a pending form, drawer opened via its toggle.
   { name: '05-tasks', click: '.task-strip-toggle' },
+  // P2.3 composer parity: seeded markdown draft (restored on load), voice
+  // memo bar idle, markdown preview open, drag overlay active.
+  { name: '06-composer', composer: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -261,6 +264,12 @@ app.whenReady().then(async () => {
       agentId: 'visual', sessionId: SESSION_ID, title: 'Confirm the release name',
       fields: [{ name: 'release', label: 'Release name', type: 'text' }],
     });
+
+    // P2.3 surface seed: a persisted markdown draft — the composer restores
+    // it on load (draft persistence), so the preview has real content.
+    const { sessionExtrasService } = require(path.join(ROOT, 'src', 'main', 'services', 'sessionExtrasService.js'));
+    sessionExtrasService.saveDraft(SESSION_ID,
+      'Ship the **launch** today — notes:\n\n- retry the failed job\n- ping the team');
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
@@ -351,6 +360,27 @@ app.whenReady().then(async () => {
             return el ? 'clicked' : 'missing';
           })()`);
           await sleep(400);
+        }
+        if (surface.composer) {
+          // Voice memo bar (idle — no capture, so no nondeterminism), the
+          // markdown preview of the seeded draft, and the drag overlay
+          // driven by a real dragenter.
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            const memo = document.querySelector('[data-surface="composer-memo"]');
+            if (memo) { memo.click(); await sleep(200); }
+            const preview = document.querySelector('[data-surface="composer-preview-toggle"]');
+            if (preview && !preview.disabled) { preview.click(); await sleep(300); }
+            const box = document.querySelector('.composer-box');
+            if (box) {
+              const ev = new DragEvent('dragenter', { bubbles: true });
+              Object.defineProperty(ev, 'dataTransfer', { value: { types: ['Files'], files: [] } });
+              box.dispatchEvent(ev);
+            }
+            await sleep(200);
+            return 'composer staged';
+          })()`);
+          await sleep(300);
         }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);

@@ -727,6 +727,31 @@ function App() {
   const composerEditor = useRef(null);
   const composerSuppress = useRef(false);
   const draftTimer = useRef(null);
+  // Composer parity (P2.3): voice-memo bar, markdown preview, and the
+  // revision base for the draft-revision highlighter (set by Edit on a sent
+  // user message; cleared on send, discard, or closing the revision chip).
+  const [memoOpen, setMemoOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [revisingOf, setRevisingOf] = useState(null);
+  const clearRevision = useCallback(() => setRevisingOf(null), []);
+  const discardDraft = useCallback(() => {
+    api.sessionExtras.discardDraft({ sessionId: agent.sessionId }).catch(() => {});
+    setRevisingOf(null);
+    toast('draft discarded', 'ok');
+  }, [agent.sessionId]);
+  const insertTranscript = useCallback((text) => {
+    const ed = composerEditor.current;
+    if (!ed) return;
+    composerSuppress.current = true;
+    ed.chain().focus().insertContentAt(ed.state.selection.to, `\n${text} `).run();
+  }, []);
+  const startEdit = useCallback((item) => {
+    const ed = composerEditor.current;
+    if (!ed || typeof item?.text !== 'string' || !item.text.trim()) return;
+    composerSuppress.current = true;
+    setRevisingOf(item.text);
+    ed.chain().focus().clearContent().insertContent(item.text).run();
+  }, []);
   const saveActiveDraft = useCallback(() => {
     const text = composerEditor.current?.getText?.() ?? '';
     api.sessionExtras.saveDraft({ sessionId: agent.sessionId, text }).catch(() => {});
@@ -1477,6 +1502,7 @@ function App() {
                   <UserMessage key={item.key} text={item.text} at={item.at} search={find?.q}
                     queued={item.queued === true} id={item.id} replyTo={item.replyTo} reactions={item.reactions}
                     onReply={() => startReply(item)} onReact={(emoji) => agent.react(item.id, emoji)}
+                    onEdit={() => startEdit(item)}
                     onJumpTo={jumpToMessage}
                     threadCount={threadCounts[item.id] || 0} onOpenThread={() => setThreadOpen(item.id)}
                     onSteer={item.queued ? () => agent.steer(item.messageId) : undefined}
@@ -1540,6 +1566,16 @@ function App() {
           onCommand={runCommand}
           fileEntries={fileEntries}
           onOpenPrompts={() => setPromptLib(true)}
+          onDropFiles={addFiles}
+          onMemo={addFiles}
+          onTranscript={insertTranscript}
+          onDiscard={discardDraft}
+          memoOpen={memoOpen}
+          onToggleMemo={() => setMemoOpen((v) => !v)}
+          previewOpen={previewOpen}
+          onTogglePreview={() => setPreviewOpen((v) => !v)}
+          revisingOf={revisingOf}
+          onClearRevision={clearRevision}
           editorRef={composerEditor}
           suppressSaveRef={composerSuppress}
           onDraftChange={onDraftChange}

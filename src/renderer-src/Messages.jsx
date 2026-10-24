@@ -72,7 +72,7 @@ function ReactBtn({ my = [], onReact }) {
 
 export function MessageRow({
   kind, text, at, onRetry, search = '', trailing, speak, author,
-  id, replyTo, reactions = [], onReply, onReact, onJumpTo, onSteer, onRollback, threadCount = 0, onOpenThread,
+  id, replyTo, reactions = [], onReply, onReact, onJumpTo, onSteer, onRollback, threadCount = 0, onOpenThread, onEdit,
 }) {
   const highlighted = Boolean(search) && text.toLowerCase().includes(search.toLowerCase());
   const canReact = Boolean(id && onReact);
@@ -128,6 +128,12 @@ export function MessageRow({
             aria-label="Roll back to here"
             onClick={(e) => { e.stopPropagation(); onRollback(); }}><Icon.Undo /></button>
         )}
+        {kind === 'user' && onEdit && (
+          <button type="button" className="ibtn msg-edit-btn" data-surface="msg-edit"
+            title="Edit: load this message into the composer with revision highlighting"
+            aria-label="Edit message"
+            onClick={(e) => { e.stopPropagation(); onEdit(); }}><Icon.Undo /></button>
+        )}
         {kind === 'user' && onRetry && (
           <button className="ibtn" title="Retry this turn" onClick={onRetry}><Icon.Refresh /></button>
         )}
@@ -136,10 +142,10 @@ export function MessageRow({
   );
 }
 
-export const UserMessage = ({ text, at, onRetry, search, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread }) => (
+export const UserMessage = ({ text, at, onRetry, search, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread, onEdit }) => (
   <MessageRow kind="user" text={text} at={at} onRetry={onRetry} search={search}
     id={id} replyTo={replyTo} reactions={reactions} onReply={onReply} onReact={onReact} onJumpTo={onJumpTo}
-    onRollback={onRollback} threadCount={threadCount} onOpenThread={onOpenThread}
+    onRollback={onRollback} threadCount={threadCount} onOpenThread={onOpenThread} onEdit={onEdit}
     trailing={queued
       ? (
         <span className="msg-queued-wrap">

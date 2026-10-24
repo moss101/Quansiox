@@ -4,8 +4,10 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Mention from '@tiptap/extension-mention';
 import { Icon } from './Icons.jsx';
-import { api, toast } from './lib.js';
+import { api, toast, escapeHtml, renderMarkdown } from './lib.js';
 import { APP_COMMANDS, findAppCommand, runAppCommand } from './commands.js';
+import VoiceMemoBar from './VoiceMemoBar.jsx';
+import { hasRevision, wordDiff } from './composerModel.js';
 
 /* Session slash commands (restored v0.9 feature) */
 const COMMANDS = [
@@ -41,12 +43,16 @@ export default function Composer({
   onCommand, fileEntries, onOpenPrompts, editorRef, suppressSaveRef, onDraftChange,
   dictating = false, onToggleDictation, voiceMode = false, onToggleVoiceMode, liveVoice = false, onToggleLiveVoice,
   replyTo = null, onClearReply,
+  onDropFiles, onDiscard, onMemo, onTranscript,
+  memoOpen = false, onToggleMemo, previewOpen = false, onTogglePreview,
+  revisingOf = null, onClearRevision,
 }) {
   const [popup, setPopup] = useState(null); // { kind:'cmd'|'mention', query, sel }
   const [files, setFiles] = useState([]);
   const [agents, setAgents] = useState([]);
   const [text, setText] = useState('');
   const [lastSent, setLastSent] = useState('');
+  const [dragDepth, setDragDepth] = useState(0);
   const popupRef = useRef(null);
   popupRef.current = popup;
 
@@ -178,6 +184,7 @@ export default function Composer({
       return;
     }
     setLastSent(body);
+    onClearRevision?.();
     onSend(body, attachments, replyTo ?? undefined);
   };
   const submitRef = useRef(submit);
@@ -213,6 +220,48 @@ export default function Composer({
   const revised = lastSent !== '' && text.trim() !== '' && text !== lastSent;
   const canSend = text.trim() !== '';
 
+  // Drag-and-drop attach (P2.3): a depth counter survives enter/leave of
+  // child elements; files go through the same ingestion as the picker.
+  const dragging = dragDepth > 0;
+  const onDragEnter = (ev) => {
+    if (!ev.dataTransfer?.types?.includes('Files')) return;
+    ev.preventDefault();
+    setDragDepth((d) => d + 1);
+  };
+  const onDragLeave = () => setDragDepth((d) => Math.max(0, d - 1));
+  const onDragOver = (ev) => { if (ev.dataTransfer?.types?.includes('Files')) ev.preventDefault(); };
+  const onDrop = (ev) => {
+    if (!ev.dataTransfer?.files?.length) { setDragDepth(0); return; }
+    ev.preventDefault();
+    setDragDepth(0);
+    onDropFiles?.(Array.from(ev.dataTransfer.files));
+  };
+
+  // The markdown preview. When revising a sent message, changed words are
+  // highlighted (ins/del) against the original — Grok's draft-revision
+  // highlighter, word-level by design.
+  const revision = hasRevision(revisingOf, text);
+  const previewHtml = useMemo(() => {
+    if (!previewOpen) return '';
+    if (revision) {
+      const runs = wordDiff(revisingOf, text)
+        .map((r) => r.type === 'ins' ? `<ins>${escapeHtml(r.text)}</ins>`
+          : r.type === 'del' ? `<del>${escapeHtml(r.text)}</del>`
+          : escapeHtml(r.text))
+        .join('\n');
+      return `<p class="diff-line">${runs}</p>`;
+    }
+    return renderMarkdown(text);
+  }, [previewOpen, revision, revisingOf, text]);
+
+  const discard = () => {
+    if (!e) return;
+    e.commands.clearContent();
+    setPopup(null);
+    onClearRevision?.();
+    onDiscard?.();
+  };
+
   return (
     <div className="composer-wrap">
       {replyTo && (
@@ -236,7 +285,28 @@ export default function Composer({
           </span>
         ))}
       </div>
-      <div className="composer-box">
+      {revisingOf !== null && (
+        <div className="composer-reply composer-revision" data-surface="composer-revision">
+          <span className="composer-reply-icon"><Icon.Undo /></span>
+          <span className="composer-reply-main">
+            <span className="composer-reply-author">Editing a sent message</span>
+            <span className="composer-reply-text">changed words are highlighted in the preview</span>
+          </span>
+          <button type="button" className="ibtn" title="Stop editing (keep the text)" aria-label="Stop editing"
+            onClick={onClearRevision}><Icon.X /></button>
+        </div>
+      )}
+      {memoOpen ? (
+        <VoiceMemoBar onMemo={onMemo} onTranscript={onTranscript} onClose={onToggleMemo} />
+      ) : null}
+      <div className="composer-box"
+        onDragEnter={onDragEnter} onDragLeave={onDragLeave} onDragOver={onDragOver} onDrop={onDrop}>
+        {dragging ? (
+          <div className="drop-overlay" data-surface="drop-overlay" aria-live="polite">
+            <Icon.Paperclip />
+            <span>Drop to attach</span>
+          </div>
+        ) : null}
         {popup && list.length > 0 && (
           <div className="cmd-popup" role="listbox"
             aria-label={popup.kind === 'cmd' ? 'Commands' : 'Mentions'}
@@ -269,9 +339,13 @@ export default function Composer({
         <div className="composer-box-inner">
           <button type="button" className="cbtn composer-plus" onClick={onAttach} title="Attach files"
             aria-label="Attach files"><Icon.Plus /></button>
-          <div className="composer editor">
+          <div className={`composer editor${previewOpen ? ' is-previewing' : ''}`}>
             <EditorContent editor={e} />
           </div>
+          {previewOpen ? (
+            <div className="composer-preview" data-surface="composer-preview"
+              aria-label="Draft preview" dangerouslySetInnerHTML={{ __html: previewHtml }} />
+          ) : null}
           <div className="composer-bar">
             <button type="button" className={`cbtn composer-mic${dictating ? ' recording' : ''}`} data-surface="composer-mic"
               onClick={onToggleDictation} aria-pressed={dictating}
@@ -292,6 +366,18 @@ export default function Composer({
             </button>
             <button type="button" className="cbtn" onClick={onSnap} title="Screenshot → attach"
               aria-label="Screenshot"><Icon.Camera /></button>
+            <button type="button" className={`cbtn composer-memo${memoOpen ? ' active' : ''}`} data-surface="composer-memo"
+              onClick={onToggleMemo} aria-pressed={memoOpen}
+              title={memoOpen ? 'Hide voice memo bar' : 'Record a voice memo'}
+              aria-label="Voice memo"><Icon.Mic /></button>
+            <button type="button" className={`cbtn composer-preview-btn${previewOpen ? ' active' : ''}`} data-surface="composer-preview-toggle"
+              onClick={onTogglePreview} aria-pressed={previewOpen} disabled={!text.trim()}
+              title={revision ? 'Preview markdown — edited words are highlighted' : 'Preview markdown'}
+              aria-label="Preview markdown"><Icon.File /></button>
+            {revisingOf !== null && text.trim() !== '' ? (
+              <button type="button" className="cbtn" data-surface="composer-discard" onClick={discard}
+                title="Discard draft (editor + saved copy)" aria-label="Discard draft"><Icon.Trash /></button>
+            ) : null}
             <button type="button" className="cbtn" onClick={onOpenPrompts} title="Prompt library (save / insert templates)"
               aria-label="Prompt library"><Icon.Star /></button>
             {running

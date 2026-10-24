@@ -2388,3 +2388,74 @@ details.automations-manager .automation-list, details.automations-manager .autom
   font-family: var(--font-mono, monospace); font-size: 11px; line-height: 1.5;
   color: var(--text-2); white-space: pre-wrap;
 }
+
+/* ---- Composer parity (P2.3): drag-drop, voice memo, preview, revision ---- */
+.composer-box { position: relative; }
+.drop-overlay {
+  position: absolute;
+  inset: 4px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 1.5px dashed var(--accent);
+  border-radius: var(--r-md);
+  background: var(--bg-1);
+  color: var(--accent-ink);
+  font-size: 13px;
+  pointer-events: none;
+}
+.voice-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  margin-bottom: var(--space-1);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+}
+.voice-bar-hint { color: var(--text-3); font-size: 12px; flex: 1; }
+.voice-error { color: var(--danger); font-size: 12px; flex: 1; }
+.voice-state-dot {
+  width: 8px; height: 8px; border-radius: var(--r-full);
+  background: var(--text-3); flex: none;
+}
+.voice-state-dot.live { background: var(--danger); animation: none; }
+.voice-wave {
+  width: 220px; height: 26px; flex: none;
+  color: var(--text-2);
+}
+.voice-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2); font-size: 12px;
+  min-width: 38px; text-align: right;
+}
+.composer.editor.is-previewing { display: none; }
+.composer-preview {
+  flex: 1;
+  min-height: 52px;
+  max-height: 180px;
+  overflow: auto;
+  padding: var(--space-1) 0;
+  font-size: 13px;
+  border-top: 1px solid var(--stroke-1);
+}
+.composer-preview p { margin: 0 0 6px; }
+.composer-preview p:last-child { margin-bottom: 0; }
+.composer-preview ins {
+  text-decoration: none;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  border-radius: var(--r-xs);
+  padding: 0 3px;
+}
+.composer-preview del {
+  text-decoration: line-through;
+  color: var(--text-3);
+  background: var(--stroke-1);
+  border-radius: var(--r-xs);
+  padding: 0 3px;
+}
+.composer-revision .composer-reply-author { color: var(--accent-ink); }
