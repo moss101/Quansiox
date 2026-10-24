@@ -2565,3 +2565,52 @@ details.automations-manager .automation-list, details.automations-manager .autom
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .msg-save.on { color: var(--warn); }
+
+/* ---- Pre-boot + boot shell (P1.5, Grok #sand-boot-shell parity) ----
+   Before the theme attribute lands, the page is transparent instead of
+   white — Grok's :root:not([data-theme]) trick — so a dark-system user
+   never sees a light flash. The splash paints from first paint until the
+   renderer removes it. */
+:root:not([data-theme]) {
+  background: transparent;
+  color-scheme: light dark;
+}
+#qx-boot-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  background: var(--bg-1, #161616);
+  animation: qx-boot-out 0.25s var(--ease, ease) 0.05s forwards;
+}
+#qx-boot-shell .qx-boot-mark {
+  font-family: var(--font-sans, -apple-system, sans-serif);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--text-2, #dbdbdb);
+}
+#qx-boot-shell .qx-boot-bar {
+  width: 120px;
+  height: 2px;
+  border-radius: var(--r-full, 999px);
+  background: var(--stroke-1, #2a2a2a);
+  overflow: hidden;
+}
+#qx-boot-shell .qx-boot-bar span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent, var(--text-2, #dbdbdb));
+  animation: qx-boot-slide 0.9s ease-in-out infinite;
+}
+@keyframes qx-boot-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+@keyframes qx-boot-out {
+  to { opacity: 0; visibility: hidden; }
+}

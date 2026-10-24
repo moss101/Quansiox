@@ -737,6 +737,9 @@ function App() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [revisingOf, setRevisingOf] = useState(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // P1.5: remove the pre-boot splash once the app has mounted (it has
+  // already faded out via CSS; this releases the node).
+  useEffect(() => { document.getElementById('qx-boot-shell')?.remove(); }, []);
   // Saved-messages library (P2.4): which transcript rows are saved. The
   // authoritative list is the store; this Set is its renderer mirror.
   const [savedIds, setSavedIds] = useState(() => new Set());
