@@ -71,7 +71,7 @@ function ReactBtn({ my = [], onReact }) {
 }
 
 export function MessageRow({
-  kind, text, at, onRetry, search = '', trailing, speak, author, activeMatch = null,
+  kind, text, at, onRetry, search = '', trailing, speak, author, activeMatch = null, saved = false, onToggleSave,
   id, replyTo, reactions = [], onReply, onReact, onJumpTo, onSteer, onRollback, threadCount = 0, onOpenThread, onEdit,
 }) {
   const highlighted = Boolean(search) && text.toLowerCase().includes(search.toLowerCase());
@@ -123,6 +123,12 @@ export function MessageRow({
         )}
         {speak && <SpeakBtn text={text} sessionId={speak.sessionId} memoKey={speak.memoKey} />}
         <CopyBtn getText={() => text} />
+        {id && onToggleSave && (
+          <button type="button" className={`ibtn msg-save${saved ? ' on' : ''}`} data-surface="msg-save"
+            title={saved ? 'Remove from saved messages' : 'Save to library'} aria-label={saved ? 'Remove from saved' : 'Save message'}
+            aria-pressed={saved}
+            onClick={(e) => { e.stopPropagation(); onToggleSave(); }}><Icon.Star /></button>
+        )}
         {id && onRollback && (
           <button className="ibtn msg-rollback-btn" data-surface="msg-rollback"
             title="Roll back: remove this message and everything after it"
@@ -143,8 +149,8 @@ export function MessageRow({
   );
 }
 
-export const UserMessage = ({ text, at, onRetry, search, activeMatch, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread, onEdit }) => (
-  <MessageRow kind="user" text={text} at={at} onRetry={onRetry} search={search} activeMatch={activeMatch}
+export const UserMessage = ({ text, at, onRetry, search, activeMatch, saved, onToggleSave, queued, id, replyTo, reactions, onReply, onReact, onJumpTo, onSteer, onRollback, threadCount, onOpenThread, onEdit }) => (
+  <MessageRow kind="user" text={text} at={at} onRetry={onRetry} search={search} activeMatch={activeMatch} saved={saved} onToggleSave={onToggleSave}
     id={id} replyTo={replyTo} reactions={reactions} onReply={onReply} onReact={onReact} onJumpTo={onJumpTo}
     onRollback={onRollback} threadCount={threadCount} onOpenThread={onOpenThread} onEdit={onEdit}
     trailing={queued
@@ -160,8 +166,8 @@ export const UserMessage = ({ text, at, onRetry, search, activeMatch, queued, id
       )
       : null} />
 );
-export const AssistantMessage = ({ text, at, search, activeMatch, sessionId, memoKey, id, reactions, author, onReply, onReact, onJumpTo, threadCount, onOpenThread }) => (
-  <MessageRow kind="assistant" text={text} at={at} search={search} author={author} activeMatch={activeMatch}
+export const AssistantMessage = ({ text, at, search, activeMatch, saved, onToggleSave, sessionId, memoKey, id, reactions, author, onReply, onReact, onJumpTo, threadCount, onOpenThread }) => (
+  <MessageRow kind="assistant" text={text} at={at} search={search} author={author} activeMatch={activeMatch} saved={saved} onToggleSave={onToggleSave}
     id={id} reactions={reactions} onReply={onReply} onReact={onReact} onJumpTo={onJumpTo}
     threadCount={threadCount} onOpenThread={onOpenThread}
     speak={sessionId ? { sessionId, memoKey: memoKey ?? `msg:${at}:${text.slice(0, 24)}` } : undefined} />

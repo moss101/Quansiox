@@ -133,6 +133,9 @@ const SURFACES = [
   { name: '07-find', find: true },
   // P1.7 shortcuts dialog: opened via a real mod+/ dispatch.
   { name: '08-shortcuts', shortcuts: true },
+  // P2.4 saved messages: seeded library entries, dialog opened via the
+  // topbar button (★ on rows is the same store).
+  { name: '09-saved', library: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -282,6 +285,20 @@ app.whenReady().then(async () => {
     sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'please ship the release notes tonight' });
     sessionService.appendTurn(SESSION_ID, { role: 'assistant', content: 'staged — the release notes are ready for review' });
     sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'ok, release it' });
+
+    // P2.4 surface seed: two saved messages (one from this session, one from
+    // another) so the Library shows grouping and the "this chat" marker.
+    const { savedMessagesService } = require(path.join(ROOT, 'src', 'main', 'services', 'savedMessagesService.js'));
+    savedMessagesService.clear();
+    savedMessagesService.save({
+      sessionId: SESSION_ID, messageId: 'saved-here', kind: 'assistant',
+      text: 'staged — the release notes are ready for review',
+    });
+    sessionService.appendTurn('visual-other', { role: 'user', content: 'design review notes for the quarter' });
+    savedMessagesService.save({
+      sessionId: 'visual-other', messageId: 'saved-other', kind: 'user',
+      text: 'design review notes for the quarter',
+    });
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
@@ -421,6 +438,18 @@ app.whenReady().then(async () => {
             return dialog ? 'open' : 'missing';
           })()`);
           await sleep(200);
+        }
+        if (surface.library) {
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            const btn = document.querySelector('[data-surface="library-open"]');
+            if (!btn) return 'missing';
+            btn.click();
+            await sleep(500);
+            const dialog = document.querySelector('[data-surface="library-dialog"]');
+            return dialog ? 'open' : 'dialog-missing';
+          })()`);
+          await sleep(300);
         }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);

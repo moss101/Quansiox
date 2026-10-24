@@ -2518,3 +2518,50 @@ details.automations-manager .automation-list, details.automations-manager .autom
   color: var(--text-3);
   font-family: inherit;
 }
+
+/* ---- Saved-messages library (P2.4) ---- */
+.library-overlay { display: grid; place-items: center; }
+.library-card {
+  width: min(600px, 92vw);
+  max-height: min(560px, 84vh);
+  display: flex; flex-direction: column;
+  background: var(--bg-1);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+}
+.library-count { color: var(--text-3); font-weight: 400; font-size: 12px; }
+.library-body { overflow: auto; }
+.library-empty { color: var(--text-3); font-size: 13px; margin: var(--space-3) 0; text-align: center; }
+.library-group { margin-bottom: var(--space-2); }
+.library-group ul { list-style: none; margin: 0; padding: 0; }
+.library-current { color: var(--text-3); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.library-row {
+  display: flex; align-items: center; gap: var(--space-1);
+  border-top: 1px solid var(--stroke-1);
+  padding: var(--space-1) 0;
+}
+.library-group ul li:first-child { border-top: none; }
+.library-jump {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: var(--space-2);
+  background: none; border: none; cursor: pointer;
+  color: var(--text-1); font-size: 12.5px; text-align: left;
+  padding: 2px 0;
+}
+.library-jump:hover .library-text { color: var(--accent-ink); }
+.library-kind {
+  flex: none;
+  font-size: 10px;
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-xs);
+  color: var(--text-3);
+  padding: 0 4px;
+  line-height: 16px;
+}
+.library-kind[data-kind="assistant"] { color: var(--accent-ink); }
+.library-text {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.msg-save.on { color: var(--warn); }

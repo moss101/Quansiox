@@ -15,6 +15,7 @@ import PermissionPanel from './PermissionPanel.jsx';
 import TaskStatusStrip from './TaskStatus.jsx';
 import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
 import ShortcutsDialog from './ShortcutsDialog.jsx';
+import LibraryDialog from './LibraryDialog.jsx';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
 import McpPanel from './surfaces/McpPanel.jsx';
@@ -736,6 +737,32 @@ function App() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [revisingOf, setRevisingOf] = useState(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // Saved-messages library (P2.4): which transcript rows are saved. The
+  // authoritative list is the store; this Set is its renderer mirror.
+  const [savedIds, setSavedIds] = useState(() => new Set());
+  useEffect(() => {
+    api.savedMessages.list()
+      .then((rows) => setSavedIds(new Set((Array.isArray(rows) ? rows : []).map((r) => r.messageId))))
+      .catch(() => {});
+  }, []);
+  const toggleSaveMessage = useCallback((item) => {
+    if (!item?.id || typeof item.text !== 'string') return;
+    const has = savedIds.has(item.id);
+    (has
+      ? api.savedMessages.remove({ messageId: item.id })
+      : api.savedMessages.save({ sessionId: agent.sessionId, messageId: item.id, text: item.text, kind: item.kind, author: item.author })
+    )
+      .then(() => {
+        setSavedIds((prev) => {
+          const next = new Set(prev);
+          if (has) next.delete(item.id); else next.add(item.id);
+          return next;
+        });
+        toast(has ? 'removed from saved' : 'saved to library', 'ok');
+      })
+      .catch((e) => toast(e?.message ?? String(e), 'err'));
+  }, [savedIds, agent.sessionId]);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const clearRevision = useCallback(() => setRevisingOf(null), []);
   const discardDraft = useCallback(() => {
     api.sessionExtras.discardDraft({ sessionId: agent.sessionId }).catch(() => {});
@@ -956,6 +983,17 @@ function App() {
     }
     switchSession(hit.sessionId);
   }, [agent.sessionId, jumpToMessage, switchSession]);
+  // Saved-messages library jump (P2.4): same session → flash jump; another
+  // session → switch first, the pending-jump effect lands the scroll.
+  const jumpToSaved = useCallback((entry) => {
+    if (!entry?.messageId) return;
+    if (entry.sessionId && entry.sessionId !== agent.sessionId) {
+      pendingJumpRef.current = entry.messageId;
+      switchSession(entry.sessionId);
+      return;
+    }
+    jumpToMessage(entry.messageId);
+  }, [agent.sessionId, jumpToMessage, switchSession]);
   const mentionFile = useCallback((path) => {
     const ed = composerEditor.current;
     if (!ed) return;
@@ -1122,6 +1160,7 @@ function App() {
       case 'find-now': setFind({ q: extra?.q ?? '', idx: 0 }); break;
       case 'find': setFind((f) => (f ?? { q: '', idx: 0 })); break;
       case 'shortcuts': setShortcutsOpen(true); break;
+      case 'library': setLibraryOpen(true); break;
       case 'export': api.sessions.export({ id: agent.sessionId })
         .then((p) => toast(p ? `exported → ${p}` : 'export canceled', p ? 'ok' : 'warn'))
         .catch((err) => toast(err.message ?? String(err), 'err'));
@@ -1137,6 +1176,7 @@ function App() {
     { id: 'new-session', title: 'New Bot', hint: '⌘N' },
     { id: 'settings', title: 'Open settings', hint: '⌘,' },
     { id: 'shortcuts', title: 'Keyboard shortcuts', hint: '⌘/' },
+    { id: 'library', title: 'Saved messages (Library)' },
     { id: 'connect-apps', title: 'Connect apps (Integrations)', hint: '⌘⇧M' },
     { id: 'toggle-theme', title: 'Toggle light / dark theme' },
     { id: 'toggle-sidebar', title: 'Toggle sidebar', hint: '⌘B' },
@@ -1315,7 +1355,7 @@ function App() {
         stepSession(ev.shiftKey ? -1 : 1);
         return;
       }
-      if (key === 'Escape') { setFind(null); setPalette(null); setSessionMenu(null); setRename(null); setProfile(null); setTemplateDraft(null); setThreadOpen(null); setEditAuto(null); setDetails(false); setResetConfirm(false); setReplyTo(null); setShortcutsOpen(false); }
+      if (key === 'Escape') { setFind(null); setPalette(null); setSessionMenu(null); setRename(null); setProfile(null); setTemplateDraft(null); setThreadOpen(null); setEditAuto(null); setDetails(false); setResetConfirm(false); setReplyTo(null); setShortcutsOpen(false); setLibraryOpen(false); }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -1432,6 +1472,8 @@ function App() {
             {sidebar.model && <span className="badge">{sidebar.model}</span>}
           </div>
           <div className="topbar-actions">
+            <button className={`ibtn${libraryOpen ? ' active' : ''}`} data-surface="library-open" title="Saved messages (Library)"
+              onClick={() => setLibraryOpen(true)}><Icon.Star /></button>
             <button className={`ibtn${dock.open ? ' active' : ''}`} title="Toggle panels (⌘.)"
               onClick={() => setDock((d) => ({ ...d, open: !d.open }))}><Icon.Folder /></button>
             <button className="ibtn" title="Find in session (⌘F)"
@@ -1519,6 +1561,7 @@ function App() {
               switch (item.kind) {
                 case 'user': return (
                   <UserMessage key={item.key} text={item.text} at={item.at} search={find?.q} activeMatch={findActive?.id ?? null}
+                    saved={savedIds.has(item.id)} onToggleSave={() => toggleSaveMessage(item)}
                     queued={item.queued === true} id={item.id} replyTo={item.replyTo} reactions={item.reactions}
                     onReply={() => startReply(item)} onReact={(emoji) => agent.react(item.id, emoji)}
                     onEdit={() => startEdit(item)}
@@ -1535,6 +1578,7 @@ function App() {
                 );
                 case 'assistant': return (
                   <AssistantMessage key={item.key} text={item.text} at={item.at} search={find?.q} activeMatch={findActive?.id ?? null}
+                    saved={savedIds.has(item.id)} onToggleSave={() => toggleSaveMessage(item)}
                     author={item.author} sessionId={agent.sessionId} memoKey={item.key}
                     id={item.id} reactions={item.reactions}
                     onReply={() => startReply(item)} onReact={(emoji) => agent.react(item.id, emoji)}
@@ -1573,6 +1617,8 @@ function App() {
         <InteractionCards />
         <TaskStatusStrip sessionId={agent.sessionId} />
         <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+        <LibraryDialog open={libraryOpen} onClose={() => setLibraryOpen(false)}
+          activeSessionId={agent.sessionId} onJump={jumpToSaved} />
         <Composer
           onSend={onSend}
           running={agent.running || groupBusy}

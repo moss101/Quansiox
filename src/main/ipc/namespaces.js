@@ -264,6 +264,21 @@ registerNamespace('automations', {
 
 // Session conveniences (avatars, outline, media, drafts) — thin IPC over
 // sessionExtrasService so the renderer can use them directly.
+// Saved messages (P2.4): the personal library — save a message from the
+// transcript, list the library, jump back, remove. Local-first, persisted.
+registerNamespace('savedMessages', {
+  handlers: {
+    list: () => require('../services/savedMessagesService').savedMessagesService.list(),
+    save: (_e, entry = {}) => require('../services/savedMessagesService').savedMessagesService.save(entry),
+    remove: (_e, { messageId } = {}) => require('../services/savedMessagesService').savedMessagesService.remove(messageId),
+    clear: () => require('../services/savedMessagesService').savedMessagesService.clear(),
+    isSaved: (_e, { messageId } = {}) => ({
+      saved: require('../services/savedMessagesService').savedMessagesService.isSaved(messageId),
+    }),
+  },
+  events: [],
+});
+
 registerNamespace('avatars', {
   handlers: {
     get: (_e, { sessionId } = {}) => sessionExtrasService.getAvatar(sessionId),
