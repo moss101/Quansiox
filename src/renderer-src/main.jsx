@@ -16,6 +16,7 @@ import TaskStatusStrip from './TaskStatus.jsx';
 import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
 import ShortcutsDialog from './ShortcutsDialog.jsx';
 import LibraryDialog from './LibraryDialog.jsx';
+import { ACCENTS, BOT_COLORS, LANGUAGES, SHAPES, THEMES, botPatch, completionPatch, nextStep, prevStep, validate } from './onboardingModel.js';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
 import McpPanel from './surfaces/McpPanel.jsx';
@@ -271,10 +272,15 @@ function App() {
   const settings = useSettings();
   const avatars = useSessionAvatars(sessions);
 
-  // First-run flow (docs get-started): welcome → workspace → first bot profile.
+  // First-run flow (docs get-started): welcome → workspace → appearance →
+  // language & model → first bot profile (P2.2).
   useEffect(() => {
     if (settings && settings.onboardingSeen !== true) {
-      setOnboarding((prev) => prev ?? { step: 0, name: '', label: '', description: '' });
+      setOnboarding((prev) => prev ?? {
+        step: 0, name: '', label: '', description: '',
+        theme: 'system', accent: 'blue', botColor: 'blue', botShape: 'blob',
+        language: 'system', model: settings.model ?? '',
+      });
     }
   }, [settings]);
 
@@ -387,7 +393,7 @@ function App() {
     memories, memQuery, setMemQuery, memDraft, setMemDraft, memScope, setMemScope, refreshMemories,
   } = useSettingsContext({ sessionId: agent.sessionId });
   const [threadOpen, setThreadOpen] = useState(null); // messageId | null
-  const [onboarding, setOnboarding] = useState(null); // { step, name, label, description } | null
+  const [onboarding, setOnboarding] = useState(null); // wizard draft (onboardingModel.js)
   // "More sections" group auto-opens on tall viewports; the user can toggle, and
   // a resize back to tall re-opens (never force-closes). Closed ≈ 0 height.
   const [sectionsOpen, setSectionsOpen] = useState(() => typeof window !== 'undefined' && window.innerHeight >= 720);
@@ -2539,7 +2545,7 @@ function App() {
       {onboarding && (
         <div className="mini-overlay onboarding-overlay" data-surface="onboarding">
           <div className="mini-dialog onboarding-dialog" role="dialog" aria-modal="true" aria-label="Welcome to Quansiox">
-            <div className="onboarding-step">Step {onboarding.step + 1} of 3</div>
+            <div className="onboarding-step" data-surface="onboarding-step">Step {onboarding.step + 1} of 5</div>
             {onboarding.step === 0 && (
               <>
                 <div className="mini-title">Welcome to Quansiox</div>
@@ -2564,6 +2570,81 @@ function App() {
             )}
             {onboarding.step === 2 && (
               <>
+                <div className="mini-title">Appearance</div>
+                <p className="mini-copy">Theme, accent, and your bot's look. Everything is changeable later in Settings.</p>
+                <div className="onboarding-field" data-surface="onboarding-theme">
+                  <span className="onboarding-field-label">Theme</span>
+                  <div className="chip-row" role="radiogroup" aria-label="Theme">
+                    {THEMES.map((t) => (
+                      <button type="button" key={t} role="radio" aria-checked={onboarding.theme === t}
+                        className={`chip${onboarding.theme === t ? ' on' : ''}`}
+                        onClick={() => { setOnboarding((o) => ({ ...o, theme: t })); window.quansioxUI?.applyTheme?.(t); }}>
+                        {t === 'system' ? 'Match System' : t === 'light' ? 'Light' : 'Dark'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="onboarding-field" data-surface="onboarding-accent">
+                  <span className="onboarding-field-label">Accent</span>
+                  <div className="chip-row" role="radiogroup" aria-label="Accent">
+                    {ACCENTS.map((a) => (
+                      <button type="button" key={a.id} role="radio" aria-checked={onboarding.accent === a.id}
+                        className={`chip accent-chip${onboarding.accent === a.id ? ' on' : ''}`} data-accent-choice={a.id}
+                        onClick={() => {
+                          setOnboarding((o) => ({ ...o, accent: a.id }));
+                          document.documentElement.dataset.accent = a.id;
+                        }}>
+                        <span className="accent-dot" /> {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="onboarding-field" data-surface="onboarding-bot">
+                  <span className="onboarding-field-label">Your bot</span>
+                  <div className="chip-row" role="radiogroup" aria-label="Bot color">
+                    {BOT_COLORS.map((c) => (
+                      <button type="button" key={c.id} role="radio" aria-checked={onboarding.botColor === c.id}
+                        className={`chip${onboarding.botColor === c.id ? ' on' : ''}`} data-surface="onboarding-bot-color"
+                        onClick={() => setOnboarding((o) => ({ ...o, botColor: c.id }))}>{c.label}</button>
+                    ))}
+                  </div>
+                  <div className="chip-row" role="radiogroup" aria-label="Character shape" data-surface="onboarding-shapes">
+                    {SHAPES.map((s) => (
+                      <button type="button" key={s} role="radio" aria-checked={onboarding.botShape === s}
+                        className={`chip shape-chip${onboarding.botShape === s ? ' on' : ''}`} data-shape={s}
+                        onClick={() => setOnboarding((o) => ({ ...o, botShape: s }))}>
+                        <span className={`bot-shape s-${s}`} aria-hidden="true" /> {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+            {onboarding.step === 3 && (
+              <>
+                <div className="mini-title">Language & model</div>
+                <p className="mini-copy">The interface language and the model your bot talks to.</p>
+                <div className="onboarding-field" data-surface="onboarding-language">
+                  <span className="onboarding-field-label">Language</span>
+                  <div className="chip-row" role="radiogroup" aria-label="Language">
+                    {LANGUAGES.map((l) => (
+                      <button type="button" key={l.id} role="radio" aria-checked={onboarding.language === l.id}
+                        className={`chip${onboarding.language === l.id ? ' on' : ''}`}
+                        onClick={() => setOnboarding((o) => ({ ...o, language: l.id }))}>{l.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="onboarding-field">
+                  <span className="onboarding-field-label">Model</span>
+                  <input className="mini-input" aria-label="Model" placeholder={settings?.model || 'e.g. gpt-4o-mini'}
+                    value={onboarding.model} maxLength={120}
+                    onChange={(e) => setOnboarding((o) => ({ ...o, model: e.target.value }))} />
+                </div>
+                <p className="onboarding-next">Later: import passwords/CSV in Settings → Integrations, and give your bot memory in Settings → Memory.</p>
+              </>
+            )}
+            {onboarding.step === 4 && (
+              <>
                 <div className="mini-title">Create your first bot</div>
                 <p className="mini-copy">Give it a name and an optional role. This becomes the conversation profile.</p>
                 <input className="mini-input" autoFocus aria-label="Bot name" placeholder="e.g. Release manager"
@@ -2583,19 +2664,18 @@ function App() {
                 setOnboarding(null);
               }}>Skip</button>
               {onboarding.step > 0 && (
-                <button type="button" className="mini-btn" onClick={() => setOnboarding((o) => ({ ...o, step: o.step - 1 }))}>Back</button>
+                <button type="button" className="mini-btn" onClick={() => setOnboarding((o) => ({ ...o, step: prevStep(o.step) }))}>Back</button>
               )}
-              {onboarding.step < 2 ? (
-                <button type="button" className="mini-btn primary" onClick={() => setOnboarding((o) => ({ ...o, step: o.step + 1 }))}>Continue</button>
+              {onboarding.step < 4 ? (
+                <button type="button" className="mini-btn primary" onClick={() => setOnboarding((o) => ({ ...o, step: nextStep(o.step) }))}>Continue</button>
               ) : (
-                <button type="button" className="mini-btn primary" onClick={async () => {
+                <button type="button" className="mini-btn primary" disabled={!validate(onboarding).canFinish} onClick={async () => {
                   try {
-                    const patch = { onboardingSeen: true };
-                    if (onboarding.name.trim()) patch.title = onboarding.name.trim();
-                    if (onboarding.label.trim()) patch.label = onboarding.label.trim();
-                    if (onboarding.description.trim()) patch.description = onboarding.description.trim();
-                    await api.settings.save({ onboardingSeen: true });
-                    if (Object.keys(patch).length > 1) await api.sessions.update({ id: agent.sessionId, ...patch });
+                    window.quansioxUI?.applyTheme?.(onboarding.theme);
+                    document.documentElement.dataset.accent = onboarding.accent;
+                    await api.settings.save(completionPatch(onboarding));
+                    const bot = botPatch(onboarding);
+                    if (Object.keys(bot).length) await api.sessions.update({ id: agent.sessionId, ...bot });
                     setOnboarding(null);
                     refresh();
                     refreshSidebar();

@@ -2614,3 +2614,47 @@ details.automations-manager .automation-list, details.automations-manager .autom
 @keyframes qx-boot-out {
   to { opacity: 0; visibility: hidden; }
 }
+
+/* ---- Onboarding appearance step (P2.2) ---- */
+.onboarding-field { margin: var(--space-2) 0; }
+.onboarding-field-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  margin-bottom: var(--space-1);
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.chip {
+  background: var(--bg-2);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-full);
+  color: var(--text-2);
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip:hover { border-color: var(--stroke-2, var(--stroke-1)); }
+.chip.on {
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.accent-dot { width: 10px; height: 10px; border-radius: var(--r-full); background: var(--accent); flex: none; }
+.chip[data-accent-choice="green"] .accent-dot { background: var(--success); }
+.chip[data-accent-choice="orange"] .accent-dot { background: var(--warn); }
+.bot-shape { width: 16px; height: 16px; background: var(--accent); flex: none; display: inline-block; }
+.bot-shape.s-blob { border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%; }
+.bot-shape.s-egg { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+.bot-shape.s-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.bot-shape.s-pumpkin { border-radius: 50%; transform: scale(1.15, 0.9); }
+.onboarding-next { color: var(--text-3); font-size: 11.5px; margin-top: var(--space-2); }
+
+/* Accent palettes (P2.2): data-accent re-points the accent family onto
+   Grok's role tokens — facts from the adopted vocabulary. */
+html[data-accent='green'] { --accent: var(--sand-bg-success-primary); --accent-strong: var(--sand-bg-success-primary-hover); --accent-soft: var(--sand-bg-success-secondary); --accent-ink: var(--sand-text-success-primary); }
+html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-strong: var(--sand-bg-warn-primary-hover); --accent-soft: var(--sand-bg-warn-secondary); --accent-ink: var(--sand-text-warn-primary); }

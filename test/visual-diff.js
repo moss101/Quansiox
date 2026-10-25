@@ -136,6 +136,9 @@ const SURFACES = [
   // P2.4 saved messages: seeded library entries, dialog opened via the
   // topbar button (★ on rows is the same store).
   { name: '09-saved', library: true },
+  // P2.2 onboarding: fresh user-data shows the wizard; navigate to the
+  // appearance step (theme/accent/bot color + character shapes).
+  { name: '10-onboarding', onboarding: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -336,8 +339,11 @@ app.whenReady().then(async () => {
       await win.webContents.executeJavaScript(`document.fonts.ready.then(() => 'fonts-ready')`);
       await sleep(1200);
 
-      // Dismiss the first-run onboarding overlay if it mounts.
-      await win.webContents.executeJavaScript(`(() => {
+      // Dismiss the first-run onboarding overlay if it mounts — unless this
+      // run captures the onboarding surface itself (fresh user-data means
+      // the wizard always shows).
+      if (!SURFACES.some((s) => s.onboarding)) {
+        await win.webContents.executeJavaScript(`(() => {
         const overlay = document.querySelector('[data-surface="onboarding"]');
         if (!overlay) return 'none';
         const skip = [...overlay.querySelectorAll('button')].find((b) => /skip/i.test(b.textContent || ''));
@@ -345,7 +351,8 @@ app.whenReady().then(async () => {
         overlay.remove();
         return 'removed';
       })()`);
-      await sleep(400);
+        await sleep(400);
+      }
 
       const report = { generatedAt: new Date(FAKE_NOW).toISOString(), viewport: VIEWPORT, tolerance: TOLERANCE, maxDiffPct: MAX_DIFF_PCT, surfaces: {} };
 
@@ -448,6 +455,20 @@ app.whenReady().then(async () => {
             await sleep(500);
             const dialog = document.querySelector('[data-surface="library-dialog"]');
             return dialog ? 'open' : 'dialog-missing';
+          })()`);
+          await sleep(300);
+        }
+        if (surface.onboarding) {
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            const overlay = document.querySelector('[data-surface="onboarding"]');
+            if (!overlay) return 'missing';
+            for (let i = 0; i < 2; i += 1) {
+              const next = [...overlay.querySelectorAll('button')].find((b) => /continue/i.test(b.textContent || ''));
+              if (next) { next.click(); await sleep(300); }
+            }
+            const step = document.querySelector('[data-surface="onboarding-step"]');
+            return step ? step.textContent : 'no-step';
           })()`);
           await sleep(300);
         }
