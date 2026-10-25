@@ -2793,3 +2793,10 @@ html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-str
 
 /* ---- Per-agent notify toggle (P3.10) ---- */
 .session-notify.off { opacity: 0.45; }
+
+/* ---- Privacy mode indicator/toggle (P4.4) ---- */
+#btn-privacy.active {
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+}
+#titlebar .titlebar-actions button.active { border-radius: var(--r-xs); }

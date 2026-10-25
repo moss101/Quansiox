@@ -321,6 +321,16 @@ registerNamespace('portability', {
   events: [],
 });
 
+// Privacy mode (P4.4): the local enforcement toggle — on = provider runs
+// refuse at the coordinator gate; local providers keep working.
+registerNamespace('privacy', {
+  handlers: {
+    get: () => ({ enabled: require('../services/privacyService').privacyService.isEnabled() }),
+    set: (_e, { enabled } = {}) => ({ enabled: require('../services/privacyService').privacyService.setEnabled(enabled === true) }),
+  },
+  events: [],
+});
+
 registerNamespace('avatars', {
   handlers: {
     get: (_e, { sessionId } = {}) => sessionExtrasService.getAvatar(sessionId),

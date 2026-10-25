@@ -374,6 +374,24 @@ $('#btn-theme').addEventListener('click', () =>
   applyTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'));
 $('#btn-settings').addEventListener('click', () => window.quansioxUI.openSettings());
 
+// ---- privacy mode (P4.4) ----
+// Local enforcement, enforced at the coordinator run gate: while on, no
+// provider run leaves the machine (local Ollama/LM Studio keep working).
+// The button is the always-visible indicator — shield + active state.
+const btnPrivacy = $('#btn-privacy');
+function paintPrivacy(enabled) {
+  btnPrivacy?.classList.toggle('active', enabled === true);
+  btnPrivacy?.setAttribute('aria-pressed', enabled === true ? 'true' : 'false');
+}
+api.privacy?.get?.().then((r) => paintPrivacy(r?.enabled === true)).catch(() => {});
+btnPrivacy?.addEventListener('click', async () => {
+  try {
+    const current = await api.privacy.get();
+    const next = await api.privacy.set({ enabled: !(current?.enabled === true) });
+    paintPrivacy(next?.enabled === true);
+  } catch { /* namespace not ready */ }
+});
+
 // ---- language ----
 function applyLanguage(lang) {
   // i18n (P2.1): system preference resolves through Grok's language-family

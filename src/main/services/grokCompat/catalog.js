@@ -4336,9 +4336,9 @@ const REGISTRY = [
     "method": "getCursorPrivacyModeEnabled",
     "side": "desktop",
     "group": "account",
-    "impl": "stub",
-    "scope": "cursor/account",
-    "summary": "get Cursor Privacy Mode Enabled"
+    "impl": "local",
+    "handler": "privacy.get",
+    "summary": "get privacy mode (local enforcement — P4.4 differentiator)"
   },
   {
     "method": "getCursorSelectedTeam",

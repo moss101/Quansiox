@@ -868,6 +868,7 @@ const HANDLERS = {
 
   // ---- settings ----
   // ---- settings ----
+  'privacy.get': async () => ok({ enabled: require('../../services/privacyService').privacyService.isEnabled() }),
   'settings.notifications': async (p) => { const value = bool(p.value, p.enabled, p.enabled); settings().save({ notifyOnDone: value }); return ok({ notifyOnDone: value }); },
   'settings.notifyUpdates': async (p) => { const value = bool(p.value, p.enabled); settings().save({ notifyOnUpdates: value }); return ok({ notifyOnUpdates: value }); },
   // Per-agent notify-on-updates (P3.10): real local backend — the session

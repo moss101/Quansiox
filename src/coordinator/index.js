@@ -1819,6 +1819,16 @@ function schedulerFor(sessionId) {
 
 async function runChildSession(job, signal) {
   const settings = settingsService.load();
+  // Privacy mode (P4.4): enforced HERE, before anything is prepared or sent
+  // — no prompt, transcript, or tool output leaves for a provider while the
+  // gate is closed. A configured local provider (ollama/lmstudio) keeps
+  // working: it never leaves the machine.
+  const privacyGate = require('../main/services/privacyService').privacyService.gateRun(settings, {
+    hasLocalProvider: /^(http:\/\/(localhost|127\.0\.0\.1))/i.test(String(settings.baseUrl ?? '')),
+  });
+  if (!privacyGate.allowed) {
+    return { summary: privacyGate.reason, fileResults: [], aborted: false, errored: true };
+  }
   if (!settings.apiKey) {
     return { summary: 'no API key configured', fileResults: [], aborted: false, errored: true };
   }
