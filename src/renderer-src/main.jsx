@@ -1412,6 +1412,14 @@ function App() {
           onClick={(e) => { e.stopPropagation(); api.playback.open({ sessionId: s.id }).catch(() => {}); }}><Icon.Play /></button>
         <button className="ibtn" title="Show this session's browser"
           onClick={(e) => { e.stopPropagation(); showBrowser(s.id); }}><Icon.Globe /></button>
+        <button className="ibtn" data-surface="session-share" title="Export this bot (checksummed share JSON)"
+          onClick={(e) => {
+            e.stopPropagation();
+            api.portability.sessionShare({ sessionId: s.id })
+              .then((manifest) => api.portability.writeFile({ name: `share-${s.id}`, manifest }))
+              .then((file) => toast(`share written → ${file}`, 'ok'))
+              .catch((err2) => toast(err2.message ?? String(err2), 'err'));
+          }}><Icon.Link /></button>
         <button className="ibtn" title="Open in new window"
           onClick={(e) => { e.stopPropagation(); api.window.openSession({ sessionId: s.id }).catch(() => {}); }}><Icon.Popout /></button>
         <button className="ibtn danger" title="Delete session"

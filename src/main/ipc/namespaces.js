@@ -296,6 +296,31 @@ registerNamespace('libraryPins', {
   events: [],
 });
 
+// Portability (P4.3): checksummed open-format exports — session shares
+// (bot share), library exports, verified imports. Local files only.
+registerNamespace('portability', {
+  handlers: {
+    sessionShare: (_e, { sessionId } = {}) => {
+      const svc = require('../services/portabilityService').portabilityService;
+      return svc.sessionShare(require('../services/sessionService').sessionService, sessionId);
+    },
+    libraryShare: () => {
+      const svc = require('../services/portabilityService').portabilityService;
+      return svc.libraryShare(
+        require('../services/savedMessagesService').savedMessagesService,
+        require('../services/libraryService').libraryService,
+      );
+    },
+    importSessionShare: (_e, { manifest } = {}) => {
+      const svc = require('../services/portabilityService').portabilityService;
+      return svc.importSessionShare(require('../services/sessionService').sessionService, manifest);
+    },
+    writeFile: (_e, { name, manifest } = {}) =>
+      require('../services/portabilityService').portabilityService.writeFile(name, manifest),
+  },
+  events: [],
+});
+
 registerNamespace('avatars', {
   handlers: {
     get: (_e, { sessionId } = {}) => sessionExtrasService.getAvatar(sessionId),
