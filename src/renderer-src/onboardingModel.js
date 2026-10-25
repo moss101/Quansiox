@@ -10,6 +10,7 @@
  * Facts (extraction): the character-shape list (blob/egg/star/pumpkin) and
  * the appearance pane's structure are Grok's; the rendering is ours.
  */
+import { languageMenu } from '../shared/i18n.js';
 
 export const STEPS = [
   { id: 'welcome', title: 'Welcome to Quansiox' },
@@ -34,12 +35,9 @@ export const BOT_COLORS = ACCENTS;
 
 export const THEMES = ['system', 'light', 'dark'];
 
-/** The language step today: follow-system + English. The full catalog
- * (36 endonyms) is P2.1; the wizard reads this list, so it grows there. */
-export const LANGUAGES = [
-  { id: 'system', label: 'Follow System' },
-  { id: 'en', label: 'English' },
-];
+/** The language step reads the shared i18n table (P2.1): Follow System plus
+ * Grok's 36-locale endonym list. Keeps the wizard honest about RTL too. */
+export const LANGUAGES = languageMenu();
 
 /**
  * @param {object} draft the wizard state

@@ -115,4 +115,10 @@ const capabilities = async () => {
   return response?.ok ? response.result : null;
 };
 
-contextBridge.exposeInMainWorld('quansiox', { api, events, meta, edge, capabilities });
+// The i18n layer is shared main/renderer (P2.1): the classic settings-bridge
+// script cannot require modules, so the pure resolver/direction helpers ride
+// the bridge alongside the api.
+const i18n = require('../shared/i18n.js');
+
+contextBridge.exposeInMainWorld('quansiox', { api, events, meta, edge, capabilities,
+  i18n: { resolvePreference: i18n.resolvePreference, directionOf: i18n.directionOf, isLocale: i18n.isLocale, languageMenu: i18n.languageMenu } });

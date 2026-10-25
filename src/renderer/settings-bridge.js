@@ -376,7 +376,16 @@ $('#btn-settings').addEventListener('click', () => window.quansioxUI.openSetting
 
 // ---- language ----
 function applyLanguage(lang) {
-  document.documentElement.lang = String(lang || 'en');
+  // i18n (P2.1): system preference resolves through Grok's language-family
+  // mapping (yue→zh-TW, iw→he, …); RTL locales set the document direction.
+  // The resolver rides the preload bridge (classic scripts cannot require).
+  const i18n = window.quansiox?.i18n;
+  if (!i18n) { document.documentElement.lang = String(lang || 'en'); return; }
+  const wanted = lang === 'system' || !lang
+    ? i18n.resolvePreference(navigator.languages ?? [navigator.language])
+    : (i18n.isLocale(lang) ? lang : i18n.resolvePreference([lang]));
+  document.documentElement.lang = wanted;
+  document.documentElement.dir = i18n.directionOf(wanted);
 }
 api.settings.get().then((s) => applyLanguage(s.language)).catch(() => {});
 
