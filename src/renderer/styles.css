@@ -271,11 +271,11 @@ kbd {
   background: var(--bg-overlay); border: 1px solid var(--stroke-2); border-radius: var(--r-lg);
   box-shadow: var(--shadow-md, 0 12px 40px rgb(0 0 0 / 45%)); overflow: hidden;
 }
-.outline-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--stroke-1); }
+.outline-head { display: flex; align-items: center; gap: 4px; padding: 12px 16px; border-bottom: 1px solid var(--stroke-1); }
 .outline-title { flex: 1; font-weight: 640; font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .outline-list { overflow-y: auto; display: flex; flex-direction: column; padding: 4px; }
 .outline-item {
-  display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; border-radius: var(--r-sm);
+  display: flex; align-items: flex-start; gap: 4px; padding: 7px; border-radius: var(--r-sm);
   text-align: left; color: var(--text-1); font-size: var(--text-sm); line-height: 1.35; cursor: pointer;
 }
 .outline-item:hover { background: var(--bg-hover); }
@@ -571,7 +571,19 @@ kbd {
 .lib-editor { flex: 1 1 auto; min-height: 240px; resize: vertical; font-family: var(--font-mono); font-size: 12px;
   line-height: 1.5; background: var(--bg-input); color: var(--text-1); border: 1px solid var(--stroke-1);
   border-radius: var(--r-sm); padding: 8px; }
-.download-state { color: var(--text-3); font-family: var(--font-mono); font-size: var(--text-xs); }
+/* Tag recipe (measured, Grok `tag` table): .5px quaternary ring, 4px
+   radius, bg-quaternary, text-secondary — mono here because this labels
+   artifact kinds. */
+.download-state {
+  display: inline-flex; align-items: center;
+  padding-block: var(--cursor-spacing-0-25, 1px); padding-inline: 4px;
+  border: 0.5px solid var(--sand-border-quaternary-translucent);
+  border-radius: 4px;
+  background: var(--sand-bg-quaternary);
+  color: var(--sand-text-secondary);
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  overflow: hidden; white-space: nowrap;
+}
 .download-row[data-state='completed'] .download-state { color: var(--success); }
 .download-bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--bg-input); overflow: hidden; }
 .download-bar > span { display: block; height: 100%; background: var(--accent); }
@@ -2504,13 +2516,16 @@ details.automations-manager .automation-list, details.automations-manager .autom
 .shortcut-row.is-approx .shortcut-label { color: var(--text-2); }
 .shortcut-note { color: var(--text-3); font-style: normal; }
 .shortcut-key {
+  /* Kbd = Grok's tag recipe + mono (no separate Kbd table exists in the
+     extraction — shortcut keys render through the tag family). */
   font-family: var(--font-mono, monospace);
   font-size: 11px;
-  color: var(--text-2);
-  border: 1px solid var(--stroke-1);
-  border-radius: var(--r-xs);
-  background: var(--bg-2);
-  padding: 1px 6px;
+  color: var(--sand-text-secondary);
+  border: 0.5px solid var(--sand-border-quaternary-translucent);
+  border-radius: 4px;
+  background: var(--sand-bg-quaternary);
+  padding-block: var(--cursor-spacing-0-25, 1px);
+  padding-inline: 4px;
   white-space: nowrap;
 }
 .shortcut-key.is-unmapped {

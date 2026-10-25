@@ -2364,3 +2364,58 @@ button.cmd-item {
   border-radius: var(--r-sm);
 }
 .group-member-row:hover { background: var(--sand-bg-hover); }
+
+/* ---- Batch 5 (P0.3 remainder, 2026-10-24): tag / outline rows / kbd ----
+   Sources: grok75-stylex-tables.json + grok75-atoms.json (0.75.0 extraction).
+   Facts: the `tag` table (16 slots), `rowFlat`/`rowLabel` (outline-row
+   family), `header` (section header), `cell`. Notable finding: Grok has NO
+   separate Kbd table — shortcut keys render through the tag family; Kbd is
+   tag + mono here, same as Grok's own dialogs. */
+
+/* tag (measured): inline-flex centered, padding-block spacing-0-25,
+   padding-inline 4px, .5px quaternary-translucent border, radius 4px,
+   bg-quaternary fill, text-secondary, nowrap + hidden overflow. */
+.tag,
+.download-state,
+.ci-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--cursor-spacing-0-25, 1px);
+  padding-inline: 4px;
+  border: 0.5px solid var(--sand-border-quaternary-translucent);
+  border-radius: 4px;
+  background: var(--sand-bg-quaternary);
+  color: var(--sand-text-secondary);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Kbd (tag + mono — Grok renders shortcut keys through the tag family). */
+kbd,
+.shortcut-key {
+  padding-block: var(--cursor-spacing-0-25, 1px);
+  padding-inline: 4px;
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: var(--sand-border-quaternary-translucent);
+  border-radius: 4px;
+  background: var(--sand-bg-quaternary);
+}
+
+/* rowFlat (measured): the flat outline/menu row — 7px padding, 4px gap,
+   flex-start; rowLabel adds grow + ellipsis/nowrap (the two-line clamp is
+   quansiox's own extension and stays). */
+.outline-item {
+  align-items: flex-start;
+  gap: 4px;
+  padding: 7px;
+}
+
+/* header (measured): section header — column, gap 4px, padding 12px block /
+   16px inline (the outline head keeps its bottom border; quansiox's). */
+.outline-head {
+  flex-direction: row;
+  gap: 4px;
+  padding: 12px 16px;
+}
