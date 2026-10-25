@@ -2658,3 +2658,36 @@ details.automations-manager .automation-list, details.automations-manager .autom
    Grok's role tokens — facts from the adopted vocabulary. */
 html[data-accent='green'] { --accent: var(--sand-bg-success-primary); --accent-strong: var(--sand-bg-success-primary-hover); --accent-soft: var(--sand-bg-success-secondary); --accent-ink: var(--sand-text-success-primary); }
 html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-strong: var(--sand-bg-warn-primary-hover); --accent-soft: var(--sand-bg-warn-secondary); --accent-ink: var(--sand-text-warn-primary); }
+
+/* ---- Library v2 hover cards (P2.5) ---- */
+.library-jump.has-hover-card { position: relative; }
+.hover-card {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  width: max-content;
+  max-width: 280px;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-1);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+  pointer-events: none;
+}
+.hover-card strong {
+  font-size: 12px;
+  color: var(--text-1);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px;
+}
+.hover-kind { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-ink); }
+.hover-origin { font-size: 11px; color: var(--text-3); }
+.hover-note { font-size: 11px; color: var(--text-2); font-style: normal; }
+.library-row:hover .hover-card { display: flex; }
+/* Headless hover: the harness forces the hover state via a class (there is
+   no pointer in an offscreen capture). Same rule as :hover. */
+.library-row.is-hovering .hover-card { display: flex; }

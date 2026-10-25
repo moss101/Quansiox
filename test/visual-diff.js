@@ -139,6 +139,9 @@ const SURFACES = [
   // P2.2 onboarding: fresh user-data shows the wizard; navigate to the
   // appearance step (theme/accent/bot color + character shapes).
   { name: '10-onboarding', onboarding: true },
+  // P2.5 library v2: seeded pins across kinds, dialog open, one hover card
+  // forced visible (hover does not exist in headless captures).
+  { name: '11-library', library: true, hover: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -302,6 +305,14 @@ app.whenReady().then(async () => {
       sessionId: 'visual-other', messageId: 'saved-other', kind: 'user',
       text: 'design review notes for the quarter',
     });
+
+    // P2.5 surface seed: pins across kinds so the library shows the full
+    // taxonomy (media/page/sheet/deck) alongside the saved messages.
+    const { libraryService } = require(path.join(ROOT, 'src', 'main', 'services', 'libraryService.js'));
+    libraryService.clear();
+    libraryService.pin({ kind: 'page', refId: 'pin-page', title: 'Launch calculator', origin: 'artifact:html' });
+    libraryService.pin({ kind: 'sheet', refId: 'pin-sheet', title: 'Revenue chart', note: 'q3 numbers', origin: 'artifact:chart' });
+    libraryService.pin({ kind: 'deck', refId: 'pin-deck', title: 'Quarterly review deck' });
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
@@ -449,12 +460,24 @@ app.whenReady().then(async () => {
         if (surface.library) {
           await win.webContents.executeJavaScript(`(async () => {
             const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            // In onboarding runs the wizard overlay is still open from the
+            // 10-onboarding surface — close it so it cannot cover the dialog.
+            const wizard = document.querySelector('[data-surface="onboarding"]');
+            if (wizard) {
+              const skip = [...wizard.querySelectorAll('button')].find((b) => /skip/i.test(b.textContent || ''));
+              if (skip) skip.click();
+              else wizard.remove();
+              await sleep(300);
+            }
             const btn = document.querySelector('[data-surface="library-open"]');
             if (!btn) return 'missing';
             btn.click();
             await sleep(500);
             const dialog = document.querySelector('[data-surface="library-dialog"]');
-            return dialog ? 'open' : 'dialog-missing';
+            if (!dialog) return 'dialog-missing';
+            ${surface.hover ? `const pinRow = dialog.querySelector('[data-kind="sheet"] .library-row');
+            if (pinRow) pinRow.classList.add('is-hovering');` : ''}
+            return 'open';
           })()`);
           await sleep(300);
         }

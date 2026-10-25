@@ -279,6 +279,23 @@ registerNamespace('savedMessages', {
   events: [],
 });
 
+// Library v2 pins (P2.5): content pins (media/page/document/sheet/deck) —
+// the typed-collection half alongside savedMessages and the documents
+// library above. Named libraryPins to sit beside the existing 'library'
+// (documents) namespace without clobbering it.
+registerNamespace('libraryPins', {
+  handlers: {
+    list: () => require('../services/libraryService').libraryService.list(),
+    pin: (_e, pin = {}) => require('../services/libraryService').libraryService.pin(pin),
+    unpin: (_e, { kind, refId } = {}) => require('../services/libraryService').libraryService.unpin(kind, refId),
+    isPinned: (_e, { kind, refId } = {}) => ({
+      pinned: require('../services/libraryService').libraryService.isPinned(kind, refId),
+    }),
+    clear: () => require('../services/libraryService').libraryService.clear(),
+  },
+  events: [],
+});
+
 registerNamespace('avatars', {
   handlers: {
     get: (_e, { sessionId } = {}) => sessionExtrasService.getAvatar(sessionId),

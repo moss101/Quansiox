@@ -2,6 +2,40 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFileTree, useTerminal, useGit, api, toast, events } from './lib.js';
 import { renderMarkdown } from './markdown.js';
 import { Icon } from './Icons.jsx';
+import { libraryKindForArtifact } from './libraryModel.js';
+
+/** Pin-to-library toggle on an artifact row (P2.5): the artifact's kind maps
+ * onto Grok's library taxonomy (charts → sheets, the interactive html family
+ * → pages); the pin captures the title at pin time. */
+function PinBtn({ row }) {
+  const [pinned, setPinned] = useState(null); // null = unknown yet
+  const kind = libraryKindForArtifact(row.kind);
+  useEffect(() => {
+    let alive = true;
+    api.libraryPins.isPinned({ kind, refId: row.id })
+      .then((r) => { if (alive) setPinned(Boolean(r?.pinned)); })
+      .catch(() => { if (alive) setPinned(false); });
+    return () => { alive = false; };
+  }, [kind, row.id]);
+  const toggle = async () => {
+    try {
+      if (pinned) {
+        await api.libraryPins.unpin({ kind, refId: row.id });
+        setPinned(false);
+        toast('unpinned from library', 'ok');
+      } else {
+        await api.libraryPins.pin({ kind, refId: row.id, title: row.title, origin: `artifact:${row.kind}` });
+        setPinned(true);
+        toast(`pinned to library as ${kind}`, 'ok');
+      }
+    } catch (failure) { toast(failure.message, 'err'); }
+  };
+  return (
+    <button type="button" className={`ibtn msg-save${pinned ? ' on' : ''}`} data-surface="pin-artifact"
+      title={pinned ? 'Unpin from library' : 'Pin to library'} aria-label={pinned ? 'Unpin from library' : 'Pin to library'}
+      aria-pressed={pinned === true} onClick={toggle}><Icon.Star /></button>
+  );
+}
 
 /* ============ Files panel: live tree + viewer with edit mode ============ */
 
@@ -302,7 +336,7 @@ export function LibraryPanel({ active, sessionId }) {
 
   const openDoc = async (row) => {
     try {
-      const doc = await api.library.get({ id: row.id });
+      const doc = await api.libraryPins.get({ id: row.id });
       setOpen({ ...doc, dirty: false });
     } catch (failure) { toast(failure.message, 'err'); }
   };
@@ -310,7 +344,7 @@ export function LibraryPanel({ active, sessionId }) {
     if (!open) return;
     setBusy(true);
     try {
-      const saved = await api.library.save({ id: open.id, title: open.title, content: open.content, visibility: open.visibility });
+      const saved = await api.libraryPins.save({ id: open.id, title: open.title, content: open.content, visibility: open.visibility });
       setOpen({ ...open, ...saved, dirty: false });
       await refresh();
       toast('document saved', 'ok');
@@ -319,17 +353,17 @@ export function LibraryPanel({ active, sessionId }) {
   };
   const createDoc = async () => {
     try {
-      const saved = await api.library.save({ title: 'Untitled', content: '', visibility: 'private' });
+      const saved = await api.libraryPins.save({ title: 'Untitled', content: '', visibility: 'private' });
       await refresh();
       setOpen({ ...saved, content: '', dirty: false });
     } catch (failure) { toast(failure.message, 'err'); }
   };
   const remove = async (row) => {
-    try { await api.library.remove({ id: row.id }); if (open?.id === row.id) setOpen(null); await refresh(); }
+    try { await api.libraryPins.remove({ id: row.id }); if (open?.id === row.id) setOpen(null); await refresh(); }
     catch (failure) { toast(failure.message, 'err'); }
   };
   const toggleVisibility = async (row) => {
-    try { await api.library.setVisibility({ id: row.id, visibility: row.visibility === 'shared' ? 'private' : 'shared' }); await refresh(); }
+    try { await api.libraryPins.setVisibility({ id: row.id, visibility: row.visibility === 'shared' ? 'private' : 'shared' }); await refresh(); }
     catch (failure) { toast(failure.message, 'err'); }
   };
 
@@ -438,6 +472,7 @@ export function ArtifactsPanel({ sessionId, active }) {
         <div className="download-row" key={row.id}>
           <button type="button" className="lib-name" title={row.id} onClick={() => open(row)}>{row.title}</button>
           <span className="download-state">{row.kind}</span>
+          <PinBtn row={row} />
           <button className="ibtn" title="Share" onClick={() => startShare(row)}><Icon.Link /></button>
           <button className="ibtn" title="Open" disabled={busy} onClick={() => open(row)}><Icon.Popout /></button>
           <button className="ibtn" title="Delete" onClick={() => remove(row)}><Icon.Trash /></button>
