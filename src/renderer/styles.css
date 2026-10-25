@@ -2766,3 +2766,27 @@ html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-str
   object-fit: contain;
   border-radius: var(--r-md);
 }
+
+/* ---- Usage spend-limit cards (P3.12) ---- */
+.usage-limits {
+  display: grid; grid-template-columns: 1fr 200px; gap: var(--space-3);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.usage-limits.is-warning { border-color: var(--warn); }
+.usage-limits.is-exceeded { border-color: var(--danger); }
+.usage-limit-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.usage-limit-title { font-size: 12.5px; font-weight: 640; color: var(--text-1); }
+.usage-limit-spent { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.usage-limit-bar { height: 4px; border-radius: var(--r-full); background: var(--stroke-1); overflow: hidden; margin: var(--space-1) 0; }
+.usage-limit-fill { height: 100%; background: var(--accent); border-radius: var(--r-full); }
+.usage-limits.is-warning .usage-limit-fill { background: var(--warn); }
+.usage-limits.is-exceeded .usage-limit-fill { background: var(--danger); }
+.usage-limit-note { margin: 0 0 var(--space-1); font-size: 11px; color: var(--text-3); }
+.usage-limit-edit { display: flex; gap: var(--space-1); align-items: center; }
+.usage-limit-edit .mini-input { width: 110px; }
+.usage-limit-side { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; border-left: 1px solid var(--stroke-1); padding-left: var(--space-2); }
+.usage-limit-side-note { font-size: 10.5px; color: var(--text-3); }

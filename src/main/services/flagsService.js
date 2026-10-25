@@ -26,6 +26,26 @@ const DEFAULTS = {
   screenBridge: true,           // unified-runtime Phase 0 transport
   unifiedComputerRuntime: false,// guest framebuffer/input (native, not shipped)
   skillRecordingCapture: false, // human-action capture (native, not shipped)
+  // ---- Grok experiment names, registered as documented no-op-local
+  // defaults (P3.15): the names/ids are extraction facts; the VALUES are
+  // quansiox's truthful local state — true only where the feature shipped
+  // here, false otherwise. No experiment network traffic exists; overrides
+  // still win locally.
+  'grok_bot_library_v2': true,        // typed library shipped (P2.5)
+  'grok_bot_library_pins': true,      // pins shipped (P2.5)
+  'grok_bot_library_hover_cards': true, // hover cards shipped (P2.5)
+  'grok_bot_library_pages': false,    // pages surface pending
+  'grok_bot_library_external_docs': false,
+  'grok_bot_pages_search': false,
+  'grok_bot_memory_import': false,    // import flow pending
+  'grok_bot_multiplayer': false,
+  'grok_bot_team_bot_details_panel': false,
+  'grok_bot_canvas_design_mode': false,
+  'grok_bot_glean_remote_mcp_setup_enabled': false,
+  'sand_enable_visualizations': false, // P2.7 pending
+  'sand_mcp_apps': false,              // P2.9 pending
+  'sand_simplified_right_pane': false,
+  'sand_area': false,
 };
 
 function userDataDir() {

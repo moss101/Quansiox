@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { api } from '../lib.js';
+import { api, toast } from '../lib.js';
 import { Icon } from '../Icons.jsx';
+import { cardModel, weekToDate } from '../usageLimitsModel.js';
 
 /**
  * UsagePanel — tokens, requests and what they cost.
@@ -44,6 +45,11 @@ export function UsagePanel({ active = true, limit = 50 }) {
   const [rows, setRows] = useState([]);
   const [rates, setRates] = useState(null);
   const [model, setModel] = useState('');
+  // P3.12: the local weekly spend limit (settings.spendLimitWeekly) and its
+  // draft while editing.
+  const [spendLimit, setSpendLimit] = useState(null);
+  const [limitDraft, setLimitDraft] = useState('');
+  const [limitBusy, setLimitBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -60,6 +66,8 @@ export function UsagePanel({ active = true, limit = 50 }) {
       setSummary(totals ?? null);
       const currentModel = settings?.model ?? '';
       setModel(currentModel);
+      setSpendLimit(settings?.spendLimitWeekly ?? null);
+      setLimitDraft(settings?.spendLimitWeekly != null ? String(settings.spendLimitWeekly) : '');
 
       const targets = (Array.isArray(list) ? list : []).slice(0, Math.max(1, limit));
       const details = await Promise.all(targets.map(async (session) => {
@@ -139,6 +147,52 @@ export function UsagePanel({ active = true, limit = 50 }) {
       </header>
 
       <div className="sfx-body">
+        {/* P3.12: spend-limit cards — local math on token costs only. */}
+        {(() => {
+          const wtd = weekToDate(rows);
+          const card = cardModel({ spendLimitWeekly: spendLimit }, wtd);
+          const saveLimit = async () => {
+            const n = Number(limitDraft);
+            const next = Number.isFinite(n) && n > 0 ? n : null;
+            setLimitBusy(true);
+            try {
+              await api.settings.save({ spendLimitWeekly: next });
+              setSpendLimit(next);
+              toast('spend limit saved', 'ok');
+            } catch (failure) { toast(failure.message, 'err'); }
+            finally { setLimitBusy(false); }
+          };
+          return (
+            <div className={`usage-limits is-${card.state}`} data-surface="usage-limits" data-state={card.state}>
+              <div className="usage-limit-main">
+                <div className="usage-limit-head">
+                  <span className="usage-limit-title">{card.title}</span>
+                  <span className="usage-limit-spent" data-surface="usage-limit-spent">{card.spentLabel}</span>
+                </div>
+                <div className="usage-limit-bar" role="progressbar" aria-valuenow={card.pct} aria-valuemin={0} aria-valuemax={100}>
+                  <div className="usage-limit-fill" style={{ width: `${Math.min(100, card.pct)}%` }} />
+                </div>
+                <p className="usage-limit-note">{card.note}</p>
+                <div className="usage-limit-edit">
+                  <input className="mini-input" type="number" min="0" step="0.5" aria-label="Weekly spend limit (USD)"
+                    placeholder="no limit" value={limitDraft} disabled={limitBusy}
+                    onChange={(e) => setLimitDraft(e.target.value)} />
+                  <button type="button" className="btn btn-secondary btn-mini" disabled={limitBusy} onClick={saveLimit}>Save limit</button>
+                  {card.enabled ? (
+                    <button type="button" className="btn btn-secondary btn-mini" disabled={limitBusy}
+                      onClick={async () => { setLimitDraft(''); await api.settings.save({ spendLimitWeekly: null }).catch(() => {}); setSpendLimit(null); }}>Remove</button>
+                  ) : null}
+                </div>
+              </div>
+              <div className="usage-limit-side">
+                <span className={`tag${card.topUp.status === 'off' ? '' : ''}`}>{card.topUp.label}: off</span>
+                <span className="usage-limit-side-note">{card.topUp.note}</span>
+                <span className="tag">{card.onDemand.label}: n/a</span>
+                <span className="usage-limit-side-note">{card.onDemand.note}</span>
+              </div>
+            </div>
+          );
+        })()}
         {error ? (
           <div className="sfx-error" data-surface="usage-error">
             <Icon.Info />

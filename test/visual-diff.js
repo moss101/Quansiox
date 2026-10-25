@@ -147,6 +147,9 @@ const SURFACES = [
   // P2.6 media filmstrip: seeded image turns, strip visible, lightbox open
   // on the first thumbnail.
   { name: '13-media', media: true },
+  // P3.12 usage spend-limit cards: settings → usage pane (P2.4/P2.6 seeded
+  // sessions give the week-to-date math real inputs).
+  { name: '14-usage', pane: 'usage' },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -328,6 +331,10 @@ app.whenReady().then(async () => {
     libraryService.pin({ kind: 'page', refId: 'pin-page', title: 'Launch calculator', origin: 'artifact:html' });
     libraryService.pin({ kind: 'sheet', refId: 'pin-sheet', title: 'Revenue chart', note: 'q3 numbers', origin: 'artifact:chart' });
     libraryService.pin({ kind: 'deck', refId: 'pin-deck', title: 'Quarterly review deck' });
+
+    // P3.12 surface seed: a weekly spend limit so the card renders enabled.
+    const { settingsService } = require(path.join(ROOT, 'src', 'main', 'services', 'settingsService.js'));
+    settingsService.save({ ...settingsService.load(), spendLimitWeekly: 20 });
   } catch (error) {
     console.log('SEED FAILED ' + error.message);
   }
