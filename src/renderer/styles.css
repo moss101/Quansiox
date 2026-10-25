@@ -2706,3 +2706,21 @@ html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-str
 /* Headless hover: the harness forces the hover state via a class (there is
    no pointer in an offscreen capture). Same rule as :hover. */
 .library-row.is-hovering .hover-card { display: flex; }
+
+/* ---- Widget cards (P2.8) ---- */
+.widget-card footer { gap: var(--space-1); }
+.widget-card .mini-input { flex: 1; min-width: 0; }
+.widget-value {
+  margin: 0;
+  max-height: 120px;
+  overflow: auto;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  background: var(--bg-2);
+  border: 1px solid var(--stroke-1);
+  border-radius: var(--r-xs);
+  padding: var(--space-1) var(--space-2);
+}

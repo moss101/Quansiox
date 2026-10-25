@@ -142,6 +142,8 @@ const SURFACES = [
   // P2.5 library v2: seeded pins across kinds, dialog open, one hover card
   // forced visible (hover does not exist in headless captures).
   { name: '11-library', library: true, hover: true },
+  // P2.8 widget cards: a pending widget renders its card above the composer.
+  { name: '12-widgets', widgets: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -494,6 +496,16 @@ app.whenReady().then(async () => {
             return step ? step.textContent : 'no-step';
           })()`);
           await sleep(300);
+        }
+        if (surface.widgets) {
+          // Seed lazily so the widget card only appears in THIS surface's
+          // capture (the 2s InteractionCards poll needs a beat to see it).
+          const { userInteractionService } = require(path.join(ROOT, 'src', 'main', 'services', 'userInteractionService.js'));
+          userInteractionService.requestWidget({
+            agentId: 'visual', sessionId: SESSION_ID, title: 'Pick a branch',
+            widgetType: 'choice', value: 'main\nstaging\nrelease',
+          });
+          await sleep(2500);
         }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);

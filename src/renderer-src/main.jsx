@@ -2884,10 +2884,12 @@ function ThreadPane({ sessionId, messageId, onClose }) {
 }
 
 function InteractionCards() {
-  // Agent→user request cards (docs: form cards + secret-request cards). The
-  // agent fork queues a persisted form; we poll the pending surface and render
-  // one card above the composer. Values are sent once and never echoed.
+  // Agent→user request cards (docs: form cards + secret-request cards +
+  // P2.8 widget cards). The agent fork queues persisted entries; we poll the
+  // pending surface and render widget cards plus one form card above the
+  // composer. Values are sent once and never echoed.
   const [cards, setCards] = useState([]);
+  const [widgets, setWidgets] = useState([]);
   const [values, setValues] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -2898,7 +2900,9 @@ function InteractionCards() {
     const load = async () => {
       try {
         const pending = await api.interactions.pending();
-        if (alive) setCards(Array.isArray(pending?.forms) ? pending.forms : []);
+        if (!alive) return;
+        setCards(Array.isArray(pending?.forms) ? pending.forms : []);
+        setWidgets(Array.isArray(pending?.widgets) ? pending.widgets : []);
       } catch { /* main not ready yet — next poll */ }
     };
     load();
@@ -2912,8 +2916,8 @@ function InteractionCards() {
     setError('');
   }, [card?.id]);
 
-  if (!card) return null;
-  const secret = (card.fields || []).some((f) => f.type === 'password');
+  if (!card && widgets.length === 0) return null;
+  const secret = (card?.fields || []).some((f) => f.type === 'password');
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true); setError('');
@@ -2934,8 +2938,14 @@ function InteractionCards() {
     setBusy(false);
   };
   return (
-    <form className={`interaction-card${secret ? ' secret' : ''}`} data-surface="interaction-card"
-      onSubmit={submit} aria-label={card.title}>
+    <>
+      {widgets.slice(0, 3).map((w) => (
+        <WidgetCard key={w.id} entry={w}
+          onDone={(id) => setWidgets((ws) => ws.filter((x) => x.id !== id))} />
+      ))}
+      {card && (
+        <form className={`interaction-card${secret ? ' secret' : ''}`} data-surface="interaction-card"
+          onSubmit={submit} aria-label={card.title}>
       <header>
         <strong>{card.title || 'Input requested'}</strong>
         <span className="interaction-kind">{secret ? 'secret request' : 'input requested'}</span>
@@ -2963,7 +2973,52 @@ function InteractionCards() {
         <button type="button" className="btn btn-secondary" onClick={dismiss} disabled={busy}>Dismiss</button>
         <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Sending…' : (secret ? 'Save secret' : 'Submit')}</button>
       </footer>
-    </form>
+        </form>
+      )}
+    </>
+  );
+}
+
+/** A pending agent widget as a card (P2.8): title + type tag + value
+ * preview, one-shot respond (free text) or dismiss. Never blocks the form
+ * card — widgets stack above it. */
+function WidgetCard({ entry, onDone }) {
+  const [value, setValue] = useState('');
+  const [busy, setBusy] = useState(false);
+  const respond = async () => {
+    setBusy(true);
+    try {
+      await api.interactions.respondWidget({ entryId: entry.id, value });
+      toast('widget answer sent', 'ok');
+      onDone(entry.id);
+    } catch (failure) { toast(failure.message, 'err'); }
+    finally { setBusy(false); }
+  };
+  const dismiss = async () => {
+    setBusy(true);
+    try { await api.interactions.dismissWidget({ entryId: entry.id }); } catch { /* already resolved */ }
+    onDone(entry.id);
+    setBusy(false);
+  };
+  const preview = entry.value != null && String(entry.value).length <= 400 ? String(entry.value) : null;
+  return (
+    <div className="interaction-card widget-card" data-surface="widget-card" data-widget-type={entry.widgetType}>
+      <header>
+        <strong>{entry.title || 'Widget'}</strong>
+        <span className="tag interaction-kind">{entry.widgetType || 'generic'}</span>
+        <button type="button" className="ibtn" aria-label="Dismiss widget" onClick={dismiss} disabled={busy}><Icon.X /></button>
+      </header>
+      {preview ? <pre className="widget-value">{preview}</pre> : null}
+      <footer>
+        <button type="button" className="btn btn-secondary" onClick={dismiss} disabled={busy}>Dismiss</button>
+        <input className="mini-input" aria-label="Widget answer" placeholder="Answer…"
+          value={value} maxLength={500} disabled={busy}
+          onChange={(e) => setValue(e.target.value)} />
+        <button type="button" className="btn btn-primary" onClick={respond} disabled={busy || !value.trim()}>
+          {busy ? 'Sending…' : 'Respond'}
+        </button>
+      </footer>
+    </div>
   );
 }
 
