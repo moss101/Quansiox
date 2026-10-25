@@ -2719,8 +2719,8 @@ const REGISTRY = [
     "side": "coordinator",
     "group": "agent",
     "impl": "local",
-    "handler": "settings.notifyUpdates",
-    "summary": "Notify-on-updates toggle"
+    "handler": "agent.setAgentNotifyOnUpdates",
+    "summary": "Notify-on-updates toggle (per agent)"
   },
   {
     "method": "setAgentUnread",

@@ -290,6 +290,11 @@ function App() {
   useEffect(() => {
     attention.setMuted(sessions.filter((s) => s.muted).map((s) => s.id));
   }, [sessions, attention.setMuted]);
+  // Per-conversation notify-on-updates opt-outs (P3.10): unread dots stay,
+  // OS notifications do not.
+  useEffect(() => {
+    attention.setNotifyOff(sessions.filter((s) => s.notifyOnUpdates === false).map((s) => s.id));
+  }, [sessions, attention.setNotifyOff]);
 
   // Grok "sand" shell geometry: a collapsible nav rail and a resizable, persisted
   // sidepane (stage-column). Both survive reloads via the settings store.
@@ -1393,6 +1398,16 @@ function App() {
         {s.kind === 'group' ? <span className="session-group-badge">{s.memberCount || 0} bots</span> : null}
       </div>
       <div className="session-actions">
+        <button className={`ibtn session-notify${s.notifyOnUpdates === false ? ' off' : ''}`} data-surface="session-notify"
+          title={s.notifyOnUpdates === false ? 'Notifications off — click to notify on updates' : 'Notify on updates — click to silence'}
+          aria-label={s.notifyOnUpdates === false ? 'Enable notifications' : 'Disable notifications'}
+          aria-pressed={s.notifyOnUpdates !== false}
+          onClick={(e) => {
+            e.stopPropagation();
+            api.sessions.update({ id: s.id, notifyOnUpdates: s.notifyOnUpdates === false })
+              .then(() => refresh())
+              .catch(() => {});
+          }}><Icon.Speaker /></button>
         <button className="ibtn" title="Watch the run (playback)"
           onClick={(e) => { e.stopPropagation(); api.playback.open({ sessionId: s.id }).catch(() => {}); }}><Icon.Play /></button>
         <button className="ibtn" title="Show this session's browser"

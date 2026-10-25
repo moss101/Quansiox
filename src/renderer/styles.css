@@ -2790,3 +2790,6 @@ html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-str
 .usage-limit-edit .mini-input { width: 110px; }
 .usage-limit-side { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; border-left: 1px solid var(--stroke-1); padding-left: var(--space-2); }
 .usage-limit-side-note { font-size: 10.5px; color: var(--text-3); }
+
+/* ---- Per-agent notify toggle (P3.10) ---- */
+.session-notify.off { opacity: 0.45; }

@@ -294,6 +294,7 @@ function listLegacyShape(s) {
     pinned: s.pinned === true,
     hidden: s.hidden === true,
     muted: s.muted === true,
+    notifyOnUpdates: s.notifyOnUpdates !== false,
     favorite: s.favorite === true,
     projectId: s.projectId ?? null,
     label: s.label ?? '',
@@ -578,6 +579,9 @@ function update(id, patch = {}) {
   if (patch.pinned !== undefined) session.pinned = patch.pinned === true;
   if (patch.hidden !== undefined) session.hidden = patch.hidden === true;
   if (patch.muted !== undefined) session.muted = patch.muted === true;
+  // Per-agent notify-on-updates (P3.10, Grok setAgentNotifyOnUpdates):
+  // default true; false mutes OS notifications but not unread dots.
+  if (patch.notifyOnUpdates !== undefined) session.notifyOnUpdates = patch.notifyOnUpdates !== false;
   if (patch.favorite !== undefined) session.favorite = patch.favorite === true;
   if (patch.label !== undefined) session.label = String(patch.label).slice(0, 60);
   if (patch.description !== undefined) session.description = String(patch.description).slice(0, 400);
@@ -588,6 +592,7 @@ function update(id, patch = {}) {
     pinned: session.pinned === true,
     hidden: session.hidden === true,
     muted: session.muted === true,
+    notifyOnUpdates: session.notifyOnUpdates !== false,
     favorite: session.favorite === true,
     projectId: session.projectId ?? null,
     label: session.label ?? '',

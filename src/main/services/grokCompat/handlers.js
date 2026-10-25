@@ -867,8 +867,19 @@ const HANDLERS = {
   },
 
   // ---- settings ----
+  // ---- settings ----
   'settings.notifications': async (p) => { const value = bool(p.value, p.enabled, p.enabled); settings().save({ notifyOnDone: value }); return ok({ notifyOnDone: value }); },
   'settings.notifyUpdates': async (p) => { const value = bool(p.value, p.enabled); settings().save({ notifyOnUpdates: value }); return ok({ notifyOnUpdates: value }); },
+  // Per-agent notify-on-updates (P3.10): real local backend — the session
+  // flag drives the renderer's attention hook (OS notifications off/on;
+  // unread dots unaffected).
+  'agent.setAgentNotifyOnUpdates': async (p) => {
+    const sessionId = String(p.agentId ?? p.sessionId ?? '');
+    if (!sessionId) throw new Error('agentId is required');
+    const value = bool(p.value, p.enabled, true);
+    require('../../services/sessionService').sessionService.update(sessionId, { notifyOnUpdates: value });
+    return ok({ agentId: sessionId, notifyOnUpdates: value });
+  },
   'settings.systemPromptExtra': async (p) => { const value = String(p.instructions ?? p.value ?? ''); settings().save({ systemPromptExtra: value }); return ok({ systemPromptExtra: value }); },
   'settings.readContext': async (p) => ok({
     systemPromptExtra: settings().load().systemPromptExtra || '',

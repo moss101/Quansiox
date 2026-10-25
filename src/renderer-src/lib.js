@@ -443,6 +443,11 @@ export function useAttention(activeSessionId) {
   // sessions list by the caller. Unread dots are unaffected.
   const mutedRef = useRef(new Set());
   const setMuted = useCallback((ids) => { mutedRef.current = new Set(ids ?? []); }, []);
+  // Per-conversation notify-on-updates opt-out (P3.10, Grok's
+  // setAgentNotifyOnUpdates): unread dots still accrue, but no OS
+  // notification fires for opted-out sessions. Synced by the caller.
+  const notifyOffRef = useRef(new Set());
+  const setNotifyOff = useCallback((ids) => { notifyOffRef.current = new Set(ids ?? []); }, []);
 
   const markRead = useCallback((id) => {
     setUnread((prev) => {
@@ -494,7 +499,7 @@ export function useAttention(activeSessionId) {
       const offscreen = sid !== activeRef.current || !document.hasFocus();
       if (!offscreen) return;
       markUnread(sid);
-      if (!document.hasFocus() && !mutedRef.current.has(sid)) {
+      if (!document.hasFocus() && !mutedRef.current.has(sid) && !notifyOffRef.current.has(sid)) {
         api.system?.notify?.({ title: 'Quansiox', body, sessionId: sid }).catch?.(() => {});
       }
     };
@@ -516,7 +521,7 @@ export function useAttention(activeSessionId) {
     return () => offs.forEach((off) => off());
   }, [markUnread]);
 
-  return { unread, working, markRead, markUnread, markAllRead, setMuted };
+  return { unread, working, markRead, markUnread, markAllRead, setMuted, setNotifyOff };
 }
 
 /* ---- voice memos (bot messages read aloud via local TTS) ----
