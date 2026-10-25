@@ -2724,3 +2724,8 @@ html[data-accent='orange'] { --accent: var(--sand-bg-warn-primary); --accent-str
   border-radius: var(--r-xs);
   padding: var(--space-1) var(--space-2);
 }
+
+/* ---- Automation schedule composer (P3.5) ---- */
+.automation-form { display: flex; flex-wrap: wrap; gap: var(--space-1); align-items: center; }
+.automation-form .chip-row { width: 100%; }
+.schedule-summary { width: 100%; margin: 0; font-size: 11.5px; color: var(--text-3); }

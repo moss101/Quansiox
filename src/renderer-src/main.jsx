@@ -16,6 +16,7 @@ import TaskStatusStrip from './TaskStatus.jsx';
 import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
 import ShortcutsDialog from './ShortcutsDialog.jsx';
 import LibraryDialog from './LibraryDialog.jsx';
+import { PRESETS, cronSummary } from './automationGrammarModel.js';
 import { ACCENTS, BOT_COLORS, LANGUAGES, SHAPES, THEMES, botPatch, completionPatch, nextStep, prevStep, validate } from './onboardingModel.js';
 import { Card } from './cards/Cards.jsx';
 import { useSettingsContext } from './contexts/settingsContext.jsx';
@@ -2220,7 +2221,19 @@ function App() {
             }}>
               <input aria-label="Automation name" placeholder="name" value={autoDraft.name} onChange={(e) => setAutoDraft((d) => ({ ...d, name: e.target.value }))} />
               <input aria-label="Interval minutes" type="number" min="1" placeholder="minutes" value={autoDraft.intervalMin} onChange={(e) => setAutoDraft((d) => ({ ...d, intervalMin: e.target.value }))} />
+              {/* P3.5: Grok's schedule composer — NL presets that translate
+                  to cron (automationGrammarModel), a natural summary of the
+                  current expression, and the raw-cron field. */}
+              <div className="chip-row" data-surface="schedule-presets" role="group" aria-label="Schedule presets">
+                {PRESETS.map((p) => (
+                  <button type="button" key={p.id} className="chip" data-surface="schedule-preset"
+                    onClick={() => setAutoDraft((d) => ({ ...d, cron: p.cron ?? (p.id === 'raw' ? d.cron : '') }))}>{p.label}</button>
+                ))}
+              </div>
               <input aria-label="Cron schedule (optional)" placeholder="cron e.g. 0 9 * * * (overrides minutes)" value={autoDraft.cron} onChange={(e) => setAutoDraft((d) => ({ ...d, cron: e.target.value }))} />
+              {autoDraft.cron.trim() ? (
+                <p className="schedule-summary" data-surface="schedule-summary">{cronSummary(autoDraft.cron) || '—'}</p>
+              ) : null}
               <input aria-label="Automation prompt" placeholder="agent prompt to run on a schedule" value={autoDraft.prompt} onChange={(e) => setAutoDraft((d) => ({ ...d, prompt: e.target.value }))} />
               <button className="btn btn-secondary" type="submit">Add</button>
             </form>
