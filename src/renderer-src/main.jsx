@@ -16,6 +16,7 @@ import TaskStatusStrip from './TaskStatus.jsx';
 import { activeItem, countLabel, matchItems, stepIndex } from './findChatModel.js';
 import ShortcutsDialog from './ShortcutsDialog.jsx';
 import LibraryDialog from './LibraryDialog.jsx';
+import MediaStrip from './MediaStrip.jsx';
 import { PRESETS, cronSummary } from './automationGrammarModel.js';
 import { ACCENTS, BOT_COLORS, LANGUAGES, SHAPES, THEMES, botPatch, completionPatch, nextStep, prevStep, validate } from './onboardingModel.js';
 import { Card } from './cards/Cards.jsx';
@@ -1626,6 +1627,7 @@ function App() {
         <NoticeStack />
         <InteractionCards />
         <TaskStatusStrip sessionId={agent.sessionId} />
+        <MediaStrip items={agent.items} />
         <ShortcutsDialog open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
         <LibraryDialog open={libraryOpen} onClose={() => setLibraryOpen(false)}
           activeSessionId={agent.sessionId} onJump={jumpToSaved} />

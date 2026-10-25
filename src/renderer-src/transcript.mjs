@@ -33,7 +33,12 @@ export function transcriptItems(turns = [], baseIndex = 0) {
       const text = Array.isArray(turn.content)
         ? turn.content.map((part) => part.text ?? `[${part.type} attachment]`).join('\n')
         : turn.content;
-      items.push({ kind: 'user', key: `user-${index}`, text, at: turn.at, id: turn.id ?? null, replyTo: turn.replyTo ?? null, reactions: turn.reactions ?? [] });
+      // Attached images ride the item (P2.6 media strip); they are data
+      // URLs, never echoed back to any provider.
+      const images = Array.isArray(turn.content)
+        ? turn.content.filter((part) => part.type === 'image_url' && part.image_url?.url).map((part) => part.image_url.url)
+        : [];
+      items.push({ kind: 'user', key: `user-${index}`, text, at: turn.at, id: turn.id ?? null, replyTo: turn.replyTo ?? null, reactions: turn.reactions ?? [], images });
     }
     if (turn.role === 'assistant') {
       if (turn.content) items.push({ kind: 'assistant', key: `assistant-${index}`, text: turn.content, at: turn.at, id: turn.id ?? null, author: turn.author ?? null, memberId: turn.memberId ?? null, reactions: turn.reactions ?? [] });

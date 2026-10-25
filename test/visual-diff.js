@@ -144,6 +144,9 @@ const SURFACES = [
   { name: '11-library', library: true, hover: true },
   // P2.8 widget cards: a pending widget renders its card above the composer.
   { name: '12-widgets', widgets: true },
+  // P2.6 media filmstrip: seeded image turns, strip visible, lightbox open
+  // on the first thumbnail.
+  { name: '13-media', media: true },
 ];
 
 /** The renderer boots a random session unless #session= is pinned — a fixed
@@ -293,6 +296,16 @@ app.whenReady().then(async () => {
     sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'please ship the release notes tonight' });
     sessionService.appendTurn(SESSION_ID, { role: 'assistant', content: 'staged — the release notes are ready for review' });
     sessionService.appendTurn(SESSION_ID, { role: 'user', content: 'ok, release it' });
+
+    // P2.6 surface seed: image turns (fixed 1×1 PNGs — deterministic bytes).
+    const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    sessionService.appendTurn(SESSION_ID, {
+      role: 'user', at: 1, content: [
+        { type: 'text', text: 'see this screenshot' },
+        { type: 'image_url', image_url: { url: PNG } },
+      ],
+    });
+    sessionService.appendTurn(SESSION_ID, { kind: 'screenshot', at: 2, tool_call_id: null, content: [{ type: 'image_url', image_url: { url: PNG } }] });
 
     // P2.4 surface seed: two saved messages (one from this session, one from
     // another) so the Library shows grouping and the "this chat" marker.
@@ -506,6 +519,19 @@ app.whenReady().then(async () => {
             widgetType: 'choice', value: 'main\nstaging\nrelease',
           });
           await sleep(2500);
+        }
+        if (surface.media) {
+          await win.webContents.executeJavaScript(`(async () => {
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+            await sleep(2500); // let the 2s transcript/media poll settle
+            const thumb = document.querySelector('[data-surface="media-thumb"]');
+            if (!thumb) return 'strip-missing';
+            thumb.click();
+            await sleep(400);
+            const box = document.querySelector('[data-surface="media-lightbox"]');
+            return box ? 'open' : 'lightbox-missing';
+          })()`);
+          await sleep(300);
         }
         const png = await capture(surface.name);
         const baselinePath = ensureBaseline(surface.name);
